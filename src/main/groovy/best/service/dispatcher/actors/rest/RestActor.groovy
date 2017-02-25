@@ -18,7 +18,6 @@ class RestActor extends UntypedActor {
     @Immutable
     public static class ServiceCall {
         String id
-        Integer max
     }
 
     // the service that will be automatically injected

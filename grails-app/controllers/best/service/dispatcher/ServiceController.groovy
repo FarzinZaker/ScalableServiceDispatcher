@@ -26,35 +26,21 @@ class ServiceController {
 
     def execute() {
 
-//        some print statements to help debug things
         println("actorSystem: ${actorSystem}")
-        println("beans: ${grailsApplication.mainContext.beanDefinitionNames}")
 
         def requestId = UUID.randomUUID().toString()
-
-        // describe the properties of the desired actor
         def actorType = "RestActor"
         Props props = SpringExtProvider.get(actorSystem).props(actorType)
-
-        // ask akka to create the actor
-        // use unique actor name because this will be an ephemeral, stateless actor
-        // managed as a prototype bean in the spring context
         def actorName = "${actorType}-${requestId}"
         ActorRef actorRef = actorSystem.actorOf(props, actorName)
 
-        def query = new RestActor.ServiceCall(id: requestId, max: Integer.MAX_VALUE)
+        def query = new RestActor.ServiceCall(id: requestId)
         Future<Object> futureResults = ask(actorRef, query, TIMEOUT_3_SECONDS)
 
         Promises.task {
             def randomIntegerResults = Await.result(futureResults, DURATION_3_SECONDS)
-            println("randomIntegerResults: " + randomIntegerResults)
-
+            println("service result: " + randomIntegerResults)
             actorSystem.stop(actorRef)
-
-//            render(contentType: 'application/json') {
-//                id = requestId
-//                randomInteger = randomIntegerResults
-//            }
             render randomIntegerResults
         }
     }
