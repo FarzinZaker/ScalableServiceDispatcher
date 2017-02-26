@@ -61,6 +61,8 @@ dependencies {
     compile 'com.typesafe.akka:akka-actor_2.11:2.4.17'
     compile 'com.typesafe.akka:akka-remote_2.11:2.4.17'
     compile 'com.typesafe.akka:akka-cluster_2.11:2.4.17'
+
+    compile('com.oracle:ojdbc6:11.2.0.3')
 }
 
 bootRun {
