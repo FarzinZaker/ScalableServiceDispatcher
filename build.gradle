@@ -2,6 +2,7 @@ buildscript {
     repositories {
         mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
+        maven { url "http://repo.grails.org/grails/plugins" }
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
@@ -13,16 +14,17 @@ buildscript {
 version "0.1"
 group "best"
 
-apply plugin:"eclipse"
-apply plugin:"idea"
-apply plugin:"war"
-apply plugin:"org.grails.grails-web"
-apply plugin:"org.grails.grails-gsp"
-apply plugin:"asset-pipeline"
+apply plugin: "eclipse"
+apply plugin: "idea"
+apply plugin: "war"
+apply plugin: "org.grails.grails-web"
+apply plugin: "org.grails.grails-gsp"
+apply plugin: "asset-pipeline"
 
 repositories {
     mavenLocal()
     maven { url "https://repo.grails.org/grails/core" }
+    maven { url "http://repo.grails.org/grails/plugins" }
 }
 
 dependencyManagement {
@@ -63,6 +65,10 @@ dependencies {
     compile 'com.typesafe.akka:akka-cluster_2.11:2.4.17'
 
     compile('com.oracle:ojdbc6:11.2.0.3')
+
+    //plugins
+    compile 'org.grails.plugins:spring-security-core:3.1.1'  
+    runtime 'org.grails.plugins:jquery:1.11.1'  
 }
 
 bootRun {
