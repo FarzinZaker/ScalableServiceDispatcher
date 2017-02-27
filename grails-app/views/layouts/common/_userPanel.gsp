@@ -13,7 +13,7 @@
             </a>
         </li>
         <li>
-            <a href="${createLink(uri: '/j_spring_security_logout')}">
+            <a href="${createLink(uri: '/logout')}">
                 <i class="fa fa-sign-out"></i> <span><g:message code="menu.currentUser.logout"/></span>
             </a>
         </li>
