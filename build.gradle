@@ -7,6 +7,7 @@ buildscript {
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.11.6"
+        classpath 'com.bertramlabs.plugins:less-asset-pipeline:2.11.6'
         classpath "org.grails.plugins:hibernate5:6.0.7"
     }
 }
@@ -66,9 +67,9 @@ dependencies {
 
     compile('com.oracle:ojdbc6:11.2.0.3')
 
-    //plugins
-    compile 'org.grails.plugins:spring-security-core:3.1.1'  
-    runtime 'org.grails.plugins:jquery:1.11.1'  
+    compile 'org.grails.plugins:spring-security-core:3.1.1'
+    compile 'com.bertramlabs.plugins:less-asset-pipeline:2.11.6'
+    compile fileTree(dir: 'libs', include: '*.jar')
 }
 
 bootRun {

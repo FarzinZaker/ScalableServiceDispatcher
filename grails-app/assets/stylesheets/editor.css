@@ -1,0 +1,35 @@
+@font-face {
+    font-family: 'eYekan';
+    src: url('../fonts/eYekan/font.eot');
+    src: url('../fonts/eYekan/font.eot#iefix') format('embedded-opentype'), url('../fonts/eYekan/font.woff') format('woff'), url('../fonts/eYekan/font.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    margin: 10px;
+    direction: rtl;
+    font-family: eYekan, tahoma, times, serif !important;
+    font-size: 14px;
+}
+
+h1, h2, h3, h4, h5, h6, dd, dt, input, textarea, select, div, span {
+    font-family: eYekan, tahoma, times, serif !important;
+}
+
+.hashTag {
+    text-decoration: none;
+    color: #d80073;
+    cursor: pointer;
+}
+
+.hashAuthor {
+    text-decoration: none;
+    color: #3b5998;
+    cursor: pointer;
+}
+
+.wrongTag{
+    color: darkgray;
+    font-size:10px;
+}

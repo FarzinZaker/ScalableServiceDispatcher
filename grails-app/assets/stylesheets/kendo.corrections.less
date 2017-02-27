@@ -1,0 +1,349 @@
+@import "parameters";
+
+.k-rtl .k-menu .k-item, .k-rtl .k-widget.k-menu-horizontal > .k-item {
+  border-width: 0 1px 0 0;
+}
+
+.k-editor-toolbar {
+  font-size: 14px;
+}
+
+.k-status {
+  direction: ltr;
+}
+
+#k-editor-link-url, #k-editor-image-url {
+  direction: ltr;
+  text-align: left;
+}
+
+.k-filesize {
+  direction: ltr;
+  text-align: right;
+}
+
+.k-rtl.k-imagebrowser {
+  .k-icon.k-add {
+    display: block;
+    float: right;
+    margin-right: 2px;
+    margin-top: 5px;
+  }
+  .k-breadcrumbs {
+    direction: ltr;
+  }
+  .k-i-search {
+    top: 8px !important;
+    left: 6px !important;
+  }
+  .k-breadcrumbs-wrap {
+    direction: ltr;
+    right: auto;
+    top: 11px;
+    left: 10px;
+  }
+  .k-i-arrow-e {
+    background-position: 0 -16px;
+  }
+  .k-thumb {
+    .k-image {
+      box-shadow: none !important;
+    }
+  }
+  .k-dropzone {
+    em {
+      display: none !important;
+    }
+  }
+}
+
+.k-editor-dialog {
+  input.k-textbox {
+    text-indent: 0;
+  }
+}
+
+.k-dropzone {
+  em {
+    font-size: 40px !important;
+  }
+}
+
+.k-editor {
+  .k-editable-area {
+    padding: 10px;
+  }
+}
+
+img.upload-thumbnail {
+  max-height: 40px;
+  vertical-align: middle;
+}
+
+.mce-container * {
+  color: @element-text-color !important;
+}
+
+.mce-reset {
+  * {
+    .useFont() !important;
+    border-radius: 0 !important;
+  }
+  i {
+    font-family: tinymce, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  }
+}
+
+.mce-rtl {
+  .mce-listbox button {
+    background: @body-color !important;
+  }
+  i.mce-i-checkbox {
+    background: @body-color !important;
+  }
+  .mce-window-head {
+    .mce-close {
+      left: 10px !important;
+      top: 4px !important;
+    }
+  }
+}
+
+.mce-primary, .mce-btn {
+  border-color: @border-color !important;
+}
+
+.mce-textbox:focus, .mce-textbox.mce-focus {
+  border-color: @main-color !important;
+  box-shadow: none !important;
+}
+
+.mce-window {
+  border-radius: 0 !important;
+}
+
+.mce-rtl .mce-window-head .mce-title {
+  padding: 0;
+  font-size: 16px;
+}
+
+.mce-tinymce, .mce-tinymce * {
+  border-radius: 0 !important;
+  border-color: #dadada !important;
+  background-image: none !important;
+}
+
+.mce-tinymce {
+  background: @body-color !important;
+  .mce-disabled {
+    background: @summary-back-color !important;
+  }
+  .mce-caret {
+    border-color: transparent !important;
+    border-top-color: @element-text-color !important;
+  }
+  button {
+    background: @body-color !important;
+    &:hover {
+      background: rgb(142, 188, 0) !important;
+      * {
+        background: transparent !important;
+        border-top-color: #fff !important;
+        text-shadow: none !important;
+        color: @body-color !important;
+      }
+      .mce-caret {
+        border-color: transparent !important;
+        border-top-color: @body-color !important;
+      }
+    }
+  }
+  .mce-disabled {
+    &:hover {
+      background: @summary-back-color !important;
+      * {
+        color: @element-text-color !important;
+      }
+    }
+  }
+}
+
+.mce-panel {
+  background: @body-color !important;
+}
+
+.mce-toolbar-grp {
+  padding: 2px !important;
+}
+
+i.mce-i-backcolor {
+  background: transparent !important;
+}
+
+.mce-menu, .mce-menu * {
+  border-radius: 0 !important;
+  border-color: @editor-border-color !important;
+
+}
+
+.mce-menu {
+  .mce-menu-item {
+    border-color: transparent !important;
+    &.mce-active {
+      border-color: @editor-border-color !important;
+    }
+  }
+  .mce-caret {
+    border-color: transparent !important;
+    border-right-color: @element-text-color !important;
+  }
+
+  & .mce-menu-item.mce-selected, & .mce-menu-item:hover {
+    background: @main-color !important;
+  }
+
+  & .mce-menu-item.mce-selected .mce-caret, & .mce-menu-item:hover .mce-caret {
+    border-right-color: @body-color !important;
+  }
+}
+
+.mce-container .mce-menu-item.mce-selected *, .mce-container .mce-menu-item:hover * {
+  color: @body-color !important;
+}
+
+.mce-colorbutton .mce-open, .mce-splitbtn .mce-open {
+  border-left-width: 0 !important;
+}
+
+.mce-popover {
+  border-radius: 0 !important;
+  border-color: #dadada !important;
+}
+
+.mce-menubar {
+  border-width: 0 !important;
+  .mce-menubtn {
+    border-width: 0 !important;
+  }
+}
+
+.mce-btn button{
+  font-weight: bold;
+  &:hover {
+    color: white !important;
+  }
+}
+
+.k-rtl {
+  .k-breadcrumbs-wrap {
+    left: 5px;
+    padding-left: 0;
+    padding-right: 5px;
+    right: auto;
+    top: 8px;
+  }
+  .k-breadcrumbs input {
+    line-height: 28px !important;
+    height: 28px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+  }
+}
+
+.k-imagebrowser {
+  .k-thumb {
+    display: inline;
+    float: right;
+    height: 80px;
+    margin: 4px 4px 0 10px;
+    width: 80px;
+  }
+  .k-rtl {
+    .k-i-arrow-e {
+      background-position: 0 -16px;
+    }
+  }
+  .k-icon {
+    color: #787878 !important;
+  }
+  a {
+    &:hover {
+      border-color: rgb(142, 188, 0) !important;
+    }
+  }
+  .k-textbox {
+    padding: 0 !important;
+  }
+  .k-select {
+    .k-icon {
+      margin-top: 8px !important;
+    }
+  }
+  .k-addfolder {
+    margin: 5px !important;
+  }
+  .k-delete {
+    margin: 5px !important;
+  }
+  .k-toolbar-wrap {
+    button {
+      margin-left: 5px !important;
+    }
+  }
+}
+
+.k-button:hover {
+  background-color: @main-color !important;
+}
+
+.k-button.k-state-disabled:hover {
+  background-color: @body-color !important;
+}
+
+.k-textbox:focus {
+  border-color: @main-color !important;
+}
+
+.ui-widget {
+  font-size: 14px !important;
+}
+
+.k-dropzone em, .k-dropzone-active em {
+  display: inline-block !important;
+  font-size: 20px !important;
+  font-style: normal !important;
+  visibility: visible !important;
+}
+
+.k-dropzone-active em {
+  color: #8ebc00;
+}
+
+.k-pager-wrap {
+  border-width: 0;
+}
+
+.k-badge {
+  background-color: @main-color;
+  color: white;
+  display: inline-block;
+  font-size: 12px;
+  margin: -7px 10px -5px -13px;
+  padding: 4px 7px 2px;
+}
+
+.k-state-focused.k-state-selected, .k-list > .k-state-focused.k-state-selected, .k-listview > .k-state-focused.k-state-selected, td.k-state-focused.k-state-selected {
+  box-shadow: none !important;
+}
+
+.label-warning {
+  background-color: #FA6800 !important;
+}
+
+.k-menu{
+  .label-warning{
+    margin-right: 10px;
+    padding-bottom: 2px;
+    padding-top: 5px;
+  }
+}
