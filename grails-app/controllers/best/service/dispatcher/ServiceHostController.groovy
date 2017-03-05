@@ -62,6 +62,6 @@ class ServiceHostController {
     def delete() {
         def item = ServiceHost.get(params.id)
         item.deleted = true
-        render(item.save() ? '1' : '0')
+        render(item.save(flush: true) ? '1' : '0')
     }
 }

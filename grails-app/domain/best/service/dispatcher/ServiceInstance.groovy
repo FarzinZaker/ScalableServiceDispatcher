@@ -1,16 +1,18 @@
 package best.service.dispatcher
 
-class ServiceLocation {
+class ServiceInstance {
 
     ServiceDefinition serviceDefinition
     ServiceHost host
     String path
+    String type
     Boolean deleted = false
     Date dateCreated
     Date lastUpdated
 
     static constraints = {
-        host()
-        path(maxSize: 2000)
+        type(inList: ServiceInstance.SERVICE_TYPES)
     }
+
+    static transient SERVICE_TYPES = ['rest']
 }

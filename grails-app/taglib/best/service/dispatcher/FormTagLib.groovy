@@ -62,7 +62,7 @@ class FormTagLib {
     def hidden = { attrs, body ->
         out << """
             <input type='hidden' id='${attrs.id ?: attrs.name}' name='${attrs.name}' value='${
-            attrs.value ? attrs.value : (attrs.entity?."${attrs.name}" ?: '')
+            attrs.value ? attrs.value : (attrs.entity?."${attrs.id ?: attrs.name}" ?: '')
         }' data-validation="${
             attrs.validation ?: ''
         }"/>

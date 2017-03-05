@@ -4,7 +4,7 @@ import best.service.dispatcher.security.RoleHelper
 import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 
-class ServiceParameterController {
+class ServiceInstanceController {
 
     @Secured([RoleHelper.ROLE_ADMIN])
     def list() {
@@ -17,15 +17,15 @@ class ServiceParameterController {
         def value = [:]
         def parameters = [offset: params.skip, max: params.pageSize, sort: params["sort[0][field]"] ?: "lastUpdated", order: params["sort[0][dir]"] ?: "desc"]
 
-        def list = ServiceParameter.findAllByServiceDefinitionAndDeleted(serviceDefinition, false, parameters)
-        value.total = ServiceParameter.countByServiceDefinitionAndDeleted(serviceDefinition, false)
+        def list = ServiceInstance.findAllByServiceDefinitionAndDeleted(serviceDefinition, false, parameters)
+        value.total = ServiceInstance.countByServiceDefinitionAndDeleted(serviceDefinition, false)
 
         value.data = list.collect {
             [
                     id         : it.id,
-                    name       : it.name,
-                    type       : message(code: "serviceParameter.type.${it.type}"),
-                    required   : it.required,
+                    host       : it.host?.name,
+                    path       : it.path,
+                    type       : message(code: "serviceInstance.type.${it.type}"),
                     lastUpdated: format.jalaliDate(date: it.lastUpdated, hm: true)
             ]
         }
@@ -35,22 +35,22 @@ class ServiceParameterController {
 
     @Secured([RoleHelper.ROLE_ADMIN])
     def create() {
-        render(template: 'form', model: [item: new ServiceParameter(serviceDefinition: ServiceDefinition.get(params.serviceDefinition))])
+        render(template: 'form', model: [item: new ServiceInstance(serviceDefinition: ServiceDefinition.get(params.serviceDefinition))])
     }
 
     @Secured([RoleHelper.ROLE_ADMIN])
     def edit() {
-        render(template: 'form', model: [item: ServiceParameter.get(params.id)])
+        render(template: 'form', model: [item: ServiceInstance.get(params.id)])
     }
 
     @Secured([RoleHelper.ROLE_ADMIN])
     def save() {
         def item
         if (params.id) {
-            item = ServiceParameter.get(params.id)
+            item = ServiceInstance.get(params.id)
             item.properties = params
         } else {
-            item = new ServiceParameter(params)
+            item = new ServiceInstance(params)
         }
         if (item.save(flush: true))
             render '1'
@@ -60,7 +60,7 @@ class ServiceParameterController {
 
     @Secured([RoleHelper.ROLE_ADMIN])
     def delete() {
-        def item = ServiceParameter.get(params.id)
+        def item = ServiceInstance.get(params.id)
         item.deleted = true
         render(item.save(flush: true) ? '1' : '0')
     }

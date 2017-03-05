@@ -3,13 +3,12 @@ package best.service.dispatcher
 class ServiceDefinition {
 
     String name
-    String type
+    String englishName
     Boolean deleted = false
     Date dateCreated
     Date lastUpdated
 
     static constraints = {
-        name()
-        type(inList: ['rest'])
+        englishName unique: true
     }
 }

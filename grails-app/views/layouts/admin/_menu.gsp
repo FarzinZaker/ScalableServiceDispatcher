@@ -11,6 +11,9 @@
     </ul>
 </li>
 <li>
+    <a href="${createLink(controller: 'customer', action: 'list')}"><g:message code="menu.customers"/></a>
+</li>
+<li>
     <a href="#">
         <g:message code="menu.users"/>
     </a>
