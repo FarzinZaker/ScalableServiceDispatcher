@@ -1,15 +1,14 @@
 package best.service.dispatcher
 
-class ServiceDefinition {
+class ServiceRateLimit {
 
-    String name
-    String type
+    CustomerService customerService
+    Integer period
+    Integer limit
     Boolean deleted = false
     Date dateCreated
     Date lastUpdated
 
     static constraints = {
-        name()
-        type(inList: ['rest'])
     }
 }

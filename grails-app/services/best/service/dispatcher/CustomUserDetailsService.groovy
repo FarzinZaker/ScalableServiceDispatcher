@@ -34,7 +34,7 @@ class CustomUserDetailsService extends GormUserDetailsService {
         User.withTransaction { status ->
             def user = User.findByUsernameOrEmailOrMobile(username, username, username, [max: 1])
             if (!user) {
-                throw new UsernameNotFoundException('User not found', username)
+                throw new UsernameNotFoundException('User not found' + username)
             }
 
             Collection<GrantedAuthority> authorities = loadAuthorities(user, username, loadRoles)

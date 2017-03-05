@@ -3,10 +3,10 @@
     <a href="#"><g:message code="menu.services"/></a>
     <ul>
         <li>
-            <a href="#"><g:message code="menu.services.hosts"/></a>
+            <a href="${createLink(controller: 'serviceHost', action: 'list')}"><g:message code="menu.services.serviceHost"/></a>
         </li>
         <li>
-            <a href="#"><g:message code="menu.services.definitions"/></a>
+            <a href="${createLink(controller: 'serviceDefinition', action: 'list')}"><g:message code="menu.services.serviceDefinition"/></a>
         </li>
     </ul>
 </li>
