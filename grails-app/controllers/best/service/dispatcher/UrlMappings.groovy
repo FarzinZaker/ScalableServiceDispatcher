@@ -4,7 +4,7 @@ class UrlMappings {
 
     static mappings = {
 
-        "/serve/$user/$service"(controller: 'service', action: 'execute')
+        "/serve/$customer/$service"(controller: 'service', action: 'execute')
 
         "/$controller/$action?/$id?(.$format)?" {
             constraints {

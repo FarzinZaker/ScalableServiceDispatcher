@@ -13,6 +13,9 @@
     <form:field fieldName="serviceHost.address">
         <form:textBox name="address" entity="${item}" validation="required" style="width:400px;"/>
     </form:field>
+    <form:field fieldName="serviceHost.port">
+        <form:numericTextBox name="port" entity="${item}" validation="required" style="width:400px;" format="##"/>
+    </form:field>
     <div class="toolbar">
         <form:button onclick="saveItem()" text="${message(code: 'save')}" class="btn-right"/>
         <form:button onclick="cancelEdit()" text="${message(code: 'cancel')}" class="btn-left"/>

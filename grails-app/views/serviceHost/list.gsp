@@ -77,6 +77,7 @@
                             title: {type: "string"},
                             protocol: {type: "string"},
                             address: {type: "string"},
+                            port: {type: "number"},
                             lastUpdated: {type: "string"}
                         }
                     },
@@ -112,6 +113,11 @@
                 {
                     field: "address",
                     title: "${message(code:'serviceHost.address.label')}",
+                    filterable: false
+                },
+                {
+                    field: "port",
+                    title: "${message(code:'serviceHost.port.label')}",
                     filterable: false
                 },
                 {

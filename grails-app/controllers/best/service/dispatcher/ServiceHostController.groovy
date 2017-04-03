@@ -26,6 +26,7 @@ class ServiceHostController {
                     name       : it.name,
                     protocol   : message(code: "serviceHost.protocol.${it.protocol}"),
                     address    : it.address,
+                    port       : it.port,
                     lastUpdated: format.jalaliDate(date: it.lastUpdated, hm: true)
             ]
         }
