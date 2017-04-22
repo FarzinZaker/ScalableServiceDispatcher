@@ -29,7 +29,9 @@ class DispatchService {
 
     ActorSystem actorSystem
     MessageSource messageSource
+
     def parameterService
+    def rateService
 
     def execute(String customerName, String serviceName, String parameters, String key) {
         def requestTime = new Date()
@@ -37,6 +39,7 @@ class DispatchService {
         checkKey(customerName, customer?.key, serviceName, parameters, key)
         def serviceDefinition = getServiceDefinition(serviceName)
         def customerService = getCustomerService(customer, serviceDefinition)
+        rateService.applyRateLimit(customerService)
         def serviceInstance = getServiceInstance(serviceDefinition)
 
 
@@ -52,7 +55,7 @@ class DispatchService {
 
         def response = Await.result(futureResults, DURATION)
         def responseTime = new Date() - requestTime
-        new ServiceLog(customer: customer, serviceDefinition: serviceDefinition, serviceInstance: serviceInstance, requestTime: requestTime, responseTime: responseTime, parameters: parameters ?: '', response: response ?: '').save(flush: true)
+        new ServiceLog(customer: customer, serviceDefinition: serviceDefinition, serviceInstance: serviceInstance, requestTime: requestTime, responseTime: responseTime, parameters: parameters ?: '', response: response?.toString() ?: '').save(flush: true)
 
         response
     }

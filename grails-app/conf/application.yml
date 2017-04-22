@@ -101,7 +101,7 @@ environments:
     development:
         dataSource:
             #Oracle
-            dbCreate: update
+#            dbCreate: update
             url: jdbc:oracle:thin:@82.99.217.213:1521:CHAHARTABLO
             username: best
             password: best
