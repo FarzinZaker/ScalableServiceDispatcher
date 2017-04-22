@@ -13,6 +13,7 @@ class ServiceException extends Exception {
 
     ServiceException(Integer errorCode, List args) {
         this.errorCode = errorCode
+        this.args = args
     }
 
     ServiceException(Integer errorCode) {
