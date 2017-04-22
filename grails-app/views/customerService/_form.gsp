@@ -17,11 +17,11 @@
     </form:field>
     <form:field fieldName="customerService.startDate">
         <form:datePicker name="startDate" entity="${item}" style="width:400px;"
-                         value="${format.jalaliDate(date: item?.startDate ?: new Date())}"/>
+                         value="${format.jalaliDate(date: item?.id ? item?.startDate : new Date())}"/>
     </form:field>
     <form:field fieldName="customerService.endDate">
         <form:datePicker name="endDate" entity="${item}" style="width:400px;"
-                         value="${format.jalaliDate(date: item?.endDate ?: new Date())}"/>
+                         value="${format.jalaliDate(date: item?.id ? item?.endDate : new Date() + 30)}"/>
     </form:field>
     <div class="toolbar">
         <form:button onclick="saveItem()" text="${message(code: 'save')}" class="btn-right"/>
