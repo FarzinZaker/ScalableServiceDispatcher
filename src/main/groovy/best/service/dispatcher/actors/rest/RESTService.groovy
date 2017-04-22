@@ -15,12 +15,12 @@ import static groovyx.net.http.ContentType.URLENC
 @Named("RESTService")
 class RESTService {
 
-    static execute(Long customerId, Long serviceInstanceId, JSONElement data) {
+    static execute(Long customerId, Long serviceInstanceId, Map<String, Object> parameters) {
 
         ServiceInstance.withTransaction {
             def serviceInstance = ServiceInstance.get(serviceInstanceId)
             def client = new RESTClient("${serviceInstance?.host?.protocol}://${serviceInstance?.host?.address}:${serviceInstance?.host?.port}")
-            def postBody = data
+            def postBody = parameters
             client.ignoreSSLIssues()
             def response = client.post(path: (serviceInstance?.path?.startsWith('/') ? '' : '/') + serviceInstance?.path, body: postBody, requestContentType: URLENC)
             return (response.data as JSON)

@@ -21,6 +21,7 @@ class ServiceController {
                     message: message(code: 'service.exception.100')
             ]
             ] as JSON)
+            ignored.printStackTrace()
         }
     }
 }

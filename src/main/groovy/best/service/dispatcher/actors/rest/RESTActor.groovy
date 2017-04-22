@@ -3,6 +3,7 @@ package best.service.dispatcher.actors.rest
 import akka.actor.UntypedActor
 import akka.dispatch.Futures
 import akka.pattern.Patterns
+import best.service.dispatcher.ServiceCall
 import grails.converters.JSON
 import groovy.transform.Immutable
 import org.springframework.context.annotation.Scope
@@ -15,13 +16,6 @@ import java.util.concurrent.Callable
 @Named("RESTActor")
 @Scope("prototype")
 class RESTActor extends UntypedActor {
-
-    @Immutable
-    public static class ServiceCall {
-        Long customerId
-        Long serviceInstanceId
-        String jsonData
-    }
 
     // the service that will be automatically injected
     RESTService restService;
@@ -38,7 +32,7 @@ class RESTActor extends UntypedActor {
             Callable<Object> op = new Callable<Object>() {
                 @Override
                 Object call() throws Exception {
-                    return restService.execute(query?.customerId, query?.serviceInstanceId, JSON.parse(query?.jsonData))
+                    return restService.execute(query?.customerId, query?.serviceInstanceId, query?.parameters)
                 }
             }
             Future<Object> futureOpResults = Futures.future(op, this.context.dispatcher())
