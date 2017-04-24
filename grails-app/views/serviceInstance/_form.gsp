@@ -8,7 +8,7 @@
                      items="${ServiceHost?.findAllByDeleted(false)?.collect { [text: it.name, value: it.id] }}"/>
     </form:field>
     <form:field fieldName="serviceInstance.path">
-        <form:textBox name="path" entity="${item}" validation="required" style="width:400px;"/>
+        <form:textBox name="path" entity="${item}" validation="required" style="width:400px;direction: ltr;"/>
     </form:field>
     <form:field fieldName="serviceInstance.type">
         <form:select name="type" entity="${item}" validation="required" style="width:400px;" preSelect="0"

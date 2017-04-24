@@ -10,6 +10,10 @@ class ServiceLog {
     String parameters
     String response
 
+    static mapping = {
+        parameters sqlType: 'clob'
+        response sqlType: 'clob'
+    }
 
     static constraints = {
     }

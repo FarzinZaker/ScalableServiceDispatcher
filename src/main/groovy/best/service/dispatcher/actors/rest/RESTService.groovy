@@ -1,11 +1,14 @@
 package best.service.dispatcher.actors.rest
 
+import best.service.dispatcher.ServiceException
 import best.service.dispatcher.ServiceInstance
 import grails.converters.JSON
 import groovyx.net.http.RESTClient
 import org.grails.web.json.JSONElement
 
 import javax.inject.Named
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 
 import static groovyx.net.http.ContentType.URLENC
 
