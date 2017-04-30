@@ -24,6 +24,7 @@ class CustomerController {
                     id         : it.id,
                     name       : it.name,
                     englishName: it.englishName,
+                    clientNo   : it.clientNo,
                     lastUpdated: format.jalaliDate(date: it.lastUpdated, hm: true)
             ]
         }

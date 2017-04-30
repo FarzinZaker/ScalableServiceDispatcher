@@ -6,6 +6,7 @@ class ServiceParameter {
     String name
     String type
     Boolean required
+    String systemValue
     Boolean deleted = false
     Date dateCreated
     Date lastUpdated
@@ -14,6 +15,7 @@ class ServiceParameter {
         name()
         type(inList: ServiceParameter.PARAMETER_TYPES)
         required()
+        systemValue(nullable: true)
     }
 
     static transient PARAMETER_TYPES = ['String', 'Integer', 'Long', 'Double', 'Float', 'Date', 'Boolean']

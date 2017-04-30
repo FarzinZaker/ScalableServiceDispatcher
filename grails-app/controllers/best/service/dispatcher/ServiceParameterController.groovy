@@ -26,6 +26,7 @@ class ServiceParameterController {
                     name       : it.name,
                     type       : message(code: "serviceParameter.type.${it.type}"),
                     required   : it.required,
+                    systemValue: message(code: "systemValue.${it.systemValue}"),
                     lastUpdated: format.jalaliDate(date: it.lastUpdated, hm: true)
             ]
         }
@@ -52,6 +53,10 @@ class ServiceParameterController {
         } else {
             item = new ServiceParameter(params)
         }
+
+        if (item.systemValue)
+            item.required = false
+
         if (item.save(flush: true))
             render '1'
         else

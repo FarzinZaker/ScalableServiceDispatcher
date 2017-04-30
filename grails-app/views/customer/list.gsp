@@ -108,6 +108,11 @@
                     filterable: false
                 },
                 {
+                    field: "clientNo",
+                    title: "${message(code:'customer.clientNo.label')}",
+                    filterable: false
+                },
+                {
                     field: "lastUpdated",
                     title: "${message(code:'customer.lastUpdated.label')}",
                     filterable: false

@@ -5,7 +5,10 @@
         <form:textBox name="name" entity="${item}" validation="required" style="width:400px;"/>
     </form:field>
     <form:field fieldName="customer.englishName">
-        <form:textBox name="englishName" entity="${item}" validation="required" style="width:400px;"/>
+        <form:textBox name="englishName" entity="${item}" validation="required" style="width:400px;direction: ltr"/>
+    </form:field>
+    <form:field fieldName="customer.clientNo">
+        <form:textBox name="clientNo" entity="${item}" validation="required" style="width:400px;direction: ltr"/>
     </form:field>
     <g:if test="${item?.key}">
         <form:field fieldName="customer.key" showHelp="0">

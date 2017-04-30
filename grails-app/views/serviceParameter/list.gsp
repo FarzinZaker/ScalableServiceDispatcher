@@ -120,6 +120,11 @@
                     headerAttributes: {style: "text-align: center"}
                 },
                 {
+                    field: "systemValue",
+                    title: "${message(code:'serviceParameter.systemValue.label')}",
+                    filterable: false
+                },
+                {
                     field: "lastUpdated",
                     title: "${message(code:'serviceParameter.lastUpdated.label')}",
                     filterable: false

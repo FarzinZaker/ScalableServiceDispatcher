@@ -102,10 +102,10 @@ environments:
         dataSource:
             #Oracle
             dbCreate: update
-            url: jdbc:oracle:thin:@82.99.217.213:1521:CHAHARTABLO
-            username: best
-            password: best
-            hibernate.default_schema: best
+            url: jdbc:oracle:thin:@172.16.24.161:1521:TESTDB2
+            username: openbanktest
+            password: OPENBANKTEST
+            hibernate.default_schema: openbanktest
             pooled: true
             logSql: false
             driverClassName: oracle.jdbc.OracleDriver
@@ -127,10 +127,10 @@ environments:
         dataSource:
             #Oracle
             dbCreate: update
-            url: jdbc:oracle:thin:@82.99.217.213:1521:CHAHARTABLO
-            username: best
-            password: best
-            hibernate.default_schema: best
+            url: jdbc:oracle:thin:@172.16.24.161:1521:TESTDB2
+            username: openbanktest
+            password: OPENBANKTEST
+            hibernate.default_schema: openbanktest
             pooled: true
             logSql: false
             driverClassName: oracle.jdbc.OracleDriver

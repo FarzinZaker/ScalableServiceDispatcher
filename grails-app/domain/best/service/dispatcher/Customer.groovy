@@ -6,6 +6,7 @@ class Customer {
 
     String name
     String englishName
+    String clientNo
     Boolean deleted = false
     Date dateCreated
     Date lastUpdated
