@@ -50,7 +50,7 @@ class DispatchService {
         if (actorRef?.terminated)
             actorRef = actorSystem.actorOf(props, actorName)
 
-        def query = new ServiceCall(customerId: customer?.id, serviceInstanceId: serviceInstance?.id, parameters: parameters ? parameterService.extractParameters(serviceDefinition, parameters) : [:])
+        def query = new ServiceCall(customerId: customer?.id, serviceInstanceId: serviceInstance?.id, parameters: parameters ? parameterService.extractParameters(serviceDefinition, parameters, customer) : [:])
         Future<Object> futureResults = ask(actorRef, query, TIMEOUT)
 
         def response = Await.result(futureResults, DURATION)

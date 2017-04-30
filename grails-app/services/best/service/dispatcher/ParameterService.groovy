@@ -10,10 +10,10 @@ import java.security.MessageDigest
 @Transactional
 class ParameterService {
 
-    Map<String, Object> extractParameters(ServiceDefinition serviceDefinition, String parametersString) {
+    Map<String, Object> extractParameters(ServiceDefinition serviceDefinition, String parametersString, Customer customer) {
         HashMap map = JSON.parse(parametersString) as HashMap
         def result = [:]
-        ServiceParameter.findAllByServiceDefinitionAndDeleted(serviceDefinition, false).each { serviceParameter ->
+        ServiceParameter.findAllByServiceDefinitionAndSystemValueIsNullAndDeleted(serviceDefinition, false).each { serviceParameter ->
             if (serviceParameter.required && !map.containsKey(serviceParameter.name))
                 throw new ServiceException(106, [serviceParameter?.name])
             else {
@@ -26,6 +26,13 @@ class ParameterService {
                 }
                 result.put(serviceParameter.name, value)
             }
+        }
+
+        def shell = new GroovyShell()
+        shell.setVariable('customer', customer)
+        ServiceParameter.findAllByServiceDefinitionAndSystemValueIsNotNullAndDeleted(serviceDefinition, false).each { serviceParameter ->
+            result.put(serviceParameter.name, shell.evaluate(serviceParameter.systemValue))
+
         }
 
         result.put('time', "${new Date().time}")
