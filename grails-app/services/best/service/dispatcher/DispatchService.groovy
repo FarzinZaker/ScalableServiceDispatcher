@@ -70,7 +70,7 @@ class DispatchService {
     private static void checkKey(String customerName, String customerKey, String serviceName, String parameters, key) {
         def digest = MessageDigest.getInstance("SHA-256")
         byte[] hash = digest.digest("${customerName}${serviceName}${parameters ?: ''}${customerKey}".getBytes(StandardCharsets.UTF_8))
-        def hashString = new String(hash, StandardCharsets.UTF_8)
+        def hashString =hash.encodeAsHex() //new String(hash, StandardCharsets.UTF_8)
         if (hashString != key)
             throw new ServiceException(102, [key])
     }
