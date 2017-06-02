@@ -24,7 +24,8 @@ class ParameterService {
                 catch (ignored) {
                     throw new ServiceException(107, [serviceParameter?.name, serviceParameter?.type])
                 }
-                result.put(serviceParameter.name, value)
+                if (value && value?.toString()?.trim() != '')
+                    result.put(serviceParameter.name, value)
             }
         }
 
@@ -37,7 +38,7 @@ class ParameterService {
 
         result.put('time', "${new Date().time}")
 
-        result.put('key', generateKey((result?.sort { it.key } as JSON)?.toString()))
+        result.put('key', generateKey(result))
 
         result
     }
@@ -63,7 +64,11 @@ class ParameterService {
         }
     }
 
-    private static String generateKey(String parameters) {
+    private static String generateKey(Map parametersMap) {
+        parametersMap?.keySet()?.each {
+            parametersMap[it] = parametersMap[it]?.toString()
+        }
+        def parameters = (parametersMap?.sort { it.key } as JSON)?.toString()
         println parameters
         def key = "jQs3LjL0Q76nVWj2zVJ+hIrxU4pyZyXLLDnwuPbNy7mla6+tnp+7/s6KJ9s1YBGXVm5gEln/5aIpqURbKV/Saxpfcb64WcDJJaw5Bfqg2BvPk2DUAaEugGjm4YvA0tKoQfNYybU9riQMigFEJVEXbQSL+2fQUTerkWROaEhnKcmDLswaTmzY4hXms5XkFxnnWXPgz/FwWxPC53OzsdSzjd+ekXFBuOqYh+XojgnI/jsFWeeS1KuZ3Qmfxd3PlNlBZTh6w89iJBXcU/kWjLAyv5V76pKsAm4S7Q4fEdq7JD68g/jAPeh9GEO10bgFfeZ/Z+QRYu/cN5bmy6WQ7mDtdp0c/+lT3Au9Hg=="
         def digest = MessageDigest.getInstance("SHA-256")

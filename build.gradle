@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "0.3"
+version "0.6"
 group "best"
 
 apply plugin: "eclipse"

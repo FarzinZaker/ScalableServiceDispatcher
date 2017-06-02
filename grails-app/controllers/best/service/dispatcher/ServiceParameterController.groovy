@@ -26,7 +26,7 @@ class ServiceParameterController {
                     name       : it.name,
                     type       : message(code: "serviceParameter.type.${it.type}"),
                     required   : it.required,
-                    systemValue: message(code: "systemValue.${it.systemValue}"),
+                    systemValue: message(code: "${it.systemValue}"),
                     lastUpdated: format.jalaliDate(date: it.lastUpdated, hm: true)
             ]
         }

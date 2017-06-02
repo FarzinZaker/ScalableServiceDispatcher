@@ -19,8 +19,8 @@
     </form:field>
     <form:field fieldName="serviceParameter.systemValue">
         <form:select name="systemValue" id="systemValue" entity="${item}" style="width:400px;"
-                     preSelect=""
-                     items="${[null, 'customer.clientNo'].collect { [text: message(code: "systemValue.${it}"), value: it] }}"/>
+                     preSelect="" allowUserInput="true"
+                     items="${[null, 'customer.clientNo'].collect { [text: message(code: "${it}"), value: it] }}"/>
     </form:field>
     <div class="toolbar">
         <form:button onclick="saveItem()" text="${message(code: 'save')}" class="btn-right"/>
