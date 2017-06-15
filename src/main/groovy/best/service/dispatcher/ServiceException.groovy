@@ -9,7 +9,7 @@ import org.springframework.context.MessageSource
 class ServiceException extends Exception {
 
     private ServiceParameterLimit parameterLimit
-    private Integer errorCode
+    private Long errorCode
     private List args
 
     ServiceException(Integer errorCode, List args) {
@@ -23,7 +23,7 @@ class ServiceException extends Exception {
 
     ServiceException(ServiceParameterLimit parameterLimit) {
         this.parameterLimit = parameterLimit
-        errorCode = 300
+        errorCode = parameterLimit.id
     }
 
     Integer getErrorCode() {
