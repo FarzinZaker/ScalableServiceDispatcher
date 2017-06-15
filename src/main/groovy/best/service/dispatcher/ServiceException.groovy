@@ -8,6 +8,7 @@ import org.springframework.context.MessageSource
  */
 class ServiceException extends Exception {
 
+    private ServiceParameterLimit parameterLimit
     private Integer errorCode
     private List args
 
@@ -20,13 +21,22 @@ class ServiceException extends Exception {
         this(errorCode, [])
     }
 
+    ServiceException(ServiceParameterLimit parameterLimit) {
+        this.parameterLimit = parameterLimit
+        errorCode = 300
+    }
+
     Integer getErrorCode() {
         errorCode
     }
 
     @Override
     String getMessage() {
-        MessageSource messageSource = Holders.applicationContext.getBean("messageSource")
-        messageSource.getMessage("service.exception.${errorCode}", args?.toArray(), Locale.default)
+        if (parameterLimit)
+            parameterLimit.name
+        else {
+            MessageSource messageSource = Holders.applicationContext.getBean("messageSource")
+            messageSource.getMessage("service.exception.${errorCode}", args?.toArray(), Locale.default)
+        }
     }
 }

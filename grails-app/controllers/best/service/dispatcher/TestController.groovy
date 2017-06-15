@@ -5,7 +5,7 @@ import grails.converters.JSON
 class TestController {
 
     def bill() {
-        println params
+//        println params
         render([time: new Date(), data: params] as JSON)
     }
 }

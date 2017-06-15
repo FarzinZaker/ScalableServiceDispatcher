@@ -7,6 +7,7 @@ import akka.util.Timeout
 import best.service.dispatcher.actors.rest.RESTActor
 import grails.converters.JSON
 import grails.transaction.Transactional
+import grails.util.Environment
 import org.springframework.context.MessageSource
 import org.springframework.context.i18n.LocaleContextHolder as LCH
 import scala.concurrent.Await
@@ -32,6 +33,7 @@ class DispatchService {
 
     def parameterService
     def rateService
+    def parameterLimitService
 
     def execute(String customerName, String serviceName, String parameters, String key) {
         def requestTime = new Date()
@@ -51,15 +53,20 @@ class DispatchService {
             actorRef = actorSystem.actorOf(props, actorName)
 
         def extractedParameters = parameters ? parameterService.extractParameters(serviceDefinition, parameters, customer) : [:]
-        def query = new ServiceCall(customerId: customer?.id, serviceInstanceId: serviceInstance?.id, parameters: extractedParameters)
-        Future<Object> futureResults = ask(actorRef, query, TIMEOUT)
+        parameterLimitService.applyParameterLimits(customerService, extractedParameters)
 
-        def response = Await.result(futureResults, DURATION)
+        def response = ([result: 'development mode'] as JSON)
+        if (!Environment.isDevelopmentMode()) {
+            def query = new ServiceCall(customerId: customer?.id, serviceInstanceId: serviceInstance?.id, parameters: extractedParameters)
+            Future<Object> futureResults = ask(actorRef, query, TIMEOUT)
+            response = Await.result(futureResults, DURATION)
+        }
         def responseTime = new Date() - requestTime
         def serviceLog = new ServiceLog(customer: customer, serviceDefinition: serviceDefinition, serviceInstance: serviceInstance, responseTime: responseTime, response: response?.toString() ?: '').save(flush: true)
         if (serviceLog)
             extractedParameters.each {
-                new ServiceLogParameter(log: serviceLog, parameter: ServiceParameter.findByServiceDefinitionAndNameAndDeleted(serviceDefinition, it.key, false), value: it.value)
+                def parameterLog = new ServiceLogParameter(log: serviceLog, parameter: ServiceParameter.findByServiceDefinitionAndNameAndDeleted(serviceDefinition, it.key, false), value: it.value)
+                parameterLog.save(flush: true)
             }
 
         response
