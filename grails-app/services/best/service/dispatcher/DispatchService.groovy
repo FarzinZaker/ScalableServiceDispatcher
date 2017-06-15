@@ -50,12 +50,17 @@ class DispatchService {
         if (actorRef?.terminated)
             actorRef = actorSystem.actorOf(props, actorName)
 
-        def query = new ServiceCall(customerId: customer?.id, serviceInstanceId: serviceInstance?.id, parameters: parameters ? parameterService.extractParameters(serviceDefinition, parameters, customer) : [:])
+        def extractedParameters = parameters ? parameterService.extractParameters(serviceDefinition, parameters, customer) : [:]
+        def query = new ServiceCall(customerId: customer?.id, serviceInstanceId: serviceInstance?.id, parameters: extractedParameters)
         Future<Object> futureResults = ask(actorRef, query, TIMEOUT)
 
         def response = Await.result(futureResults, DURATION)
         def responseTime = new Date() - requestTime
-        new ServiceLog(customer: customer, serviceDefinition: serviceDefinition, serviceInstance: serviceInstance, requestTime: requestTime, responseTime: responseTime, parameters: parameters ?: '', response: response?.toString() ?: '').save(flush: true)
+        def serviceLog = new ServiceLog(customer: customer, serviceDefinition: serviceDefinition, serviceInstance: serviceInstance, responseTime: responseTime, response: response?.toString() ?: '').save(flush: true)
+        if (serviceLog)
+            extractedParameters.each {
+                new ServiceLogParameter(log: serviceLog, parameter: ServiceParameter.findByServiceDefinitionAndNameAndDeleted(serviceDefinition, it.key, false), value: it.value)
+            }
 
         response
     }
@@ -70,7 +75,7 @@ class DispatchService {
     private static void checkKey(String customerName, String customerKey, String serviceName, String parameters, key) {
         def digest = MessageDigest.getInstance("SHA-256")
         byte[] hash = digest.digest("${customerName}${serviceName}${parameters ?: ''}${customerKey}".getBytes(StandardCharsets.UTF_8))
-        def hashString =hash.encodeAsHex() //new String(hash, StandardCharsets.UTF_8)
+        def hashString = hash.encodeAsHex() //new String(hash, StandardCharsets.UTF_8)
         if (hashString != key)
             throw new ServiceException(102, [key])
     }

@@ -3,9 +3,7 @@ package best.service.dispatcher
 class ServiceParameterLimit {
 
     CustomerService customerService
-    ServiceParameter parameter
-    Integer period
-    Double limit
+    String name
     Boolean deleted = false
     Date dateCreated
     Date lastUpdated

@@ -35,7 +35,7 @@ class RateService {
             use(TimeCategory) {
                 startDate = startDate - mins.minutes
             }
-            def requestsCount = ServiceLog.countByCustomerAndServiceDefinitionAndRequestTimeGreaterThan(customerService?.customer, customerService?.service, startDate)
+            def requestsCount = ServiceLog.countByCustomerAndServiceDefinitionAndDateCreatedGreaterThan(customerService?.customer, customerService?.service, startDate)
             if (requestsCount >= rateLimit.limit)
                 throw new ServiceException(108, [rateLimit.limit, rateLimit.period])
         }

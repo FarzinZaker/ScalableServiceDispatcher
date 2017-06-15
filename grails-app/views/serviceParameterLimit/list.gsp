@@ -9,7 +9,7 @@
 <html>
 <head>
     <meta name="layout" content="main"/>
-    <title><g:message code="menu.customers.services" args="${[customer?.name]}"/></title>
+    <title><g:message code="menu.customers.services.parameterLimits" args="${[customerService?.service?.name]}"/></title>
     <form:datePickerResources/>
 </head>
 
@@ -20,7 +20,8 @@
             <layout:breadcrumb items="${[
                     [text: '', url: createLink(uri: '/')],
                     [text: message(code: 'menu.customers'), url: createLink(controller: 'customer', action: 'list')],
-                    [text: message(code: 'menu.customers.services', args: [customer?.name]), url: createLink(action: 'list', id: params.id)]
+                    [text: message(code: 'menu.customers.services', args: [customerService?.customer?.name]), url: createLink(controller: 'customerService', action: 'list', id: customerService?.customer?.id)],
+                    [text: message(code: 'menu.customers.services.parameterLimits', args: [customerService?.service?.name]), url: createLink(action: 'list', id: params.id)]
             ]}"/>
         </div>
     </div>
@@ -57,7 +58,7 @@
                 transport: {
                     type: 'odata',
                     read: {
-                        url: "${createLink(action: 'jsonList', params:[customer: params.id])}",
+                        url: "${createLink(action: 'jsonList', params:[customerService: params.id])}",
                         dataType: "json",
                         type: "POST"
 
@@ -75,9 +76,7 @@
                     model: {
                         fields: {
                             id: {type: "number"},
-                            service: {type: "string"},
-                            startDate: {type: "string"},
-                            endDate: {type: "string"},
+                            name: {type: "string"},
                             lastUpdated: {type: "string"}
                         }
                     },
@@ -97,39 +96,29 @@
             columns: [
                 {
                     field: "id",
-                    title: "${message(code:'customerService.id.label')}",
+                    title: "${message(code:'serviceParameterLimit.id.label')}",
                     filterable: false
                 },
                 {
-                    field: "service",
-                    title: "${message(code:'customerService.service.label')}",
-                    filterable: false
-                },
-                {
-                    field: "startDate",
-                    title: "${message(code:'customerService.startDate.label')}",
-                    filterable: false
-                },
-                {
-                    field: "endDate",
-                    title: "${message(code:'customerService.endDate.label')}",
+                    field: "name",
+                    title: "${message(code:'serviceParameterLimit.name.label')}",
                     filterable: false
                 },
                 {
                     field: "lastUpdated",
-                    title: "${message(code:'customerService.lastUpdated.label')}",
+                    title: "${message(code:'serviceParameterLimit.lastUpdated.label')}",
                     filterable: false
                 },
                 {
-                    command: {text: "${message(code:'parameterLimits')}", click: viewParameterLimits},
+                    command: {text: "${message(code:'preConditions')}", click: viewPreConditions},
                     title: "",
-                    width: "165px",
+                    width: "115px",
                     headerAttributes: {style: "text-align: center"}
                 },
                 {
-                    command: {text: "${message(code:'rateLimits')}", click: viewLimits},
+                    command: {text: "${message(code:'postConditions')}", click: viewPostConditions},
                     title: "",
-                    width: "165px",
+                    width: "110px",
                     headerAttributes: {style: "text-align: center"}
                 },
                 {
@@ -147,7 +136,7 @@
             ],
             toolbar: [
                 {
-                    template: "<a class='k-button k-button-icontext k-grid-add' href='javascript:addGridItem();'>${message(code: 'customerService.add')}</a>"
+                    template: "<a class='k-button k-button-icontext k-grid-add' href='javascript:addGridItem();'>${message(code: 'serviceParameterLimit.add')}</a>"
                 }
             ]
         });
@@ -157,11 +146,11 @@
         $('#formWindow').html($('#formWindowLoading').html())
             .kendoWindow({
                 width: '820px',
-                content: '${createLink(action: 'create', params:[customer:params.id])}',
+                content: '${createLink(action: 'create', params:[customerService:params.id])}',
                 modal: true,
                 close: function (e) {
                 }
-            }).data('kendoWindow').title('${message(code:'customerService.add')}').center().open().bind("refresh", function () {
+            }).data('kendoWindow').title('${message(code:'serviceParameterLimit.add')}').center().open().bind("refresh", function () {
             $('#formWindow').data('kendoWindow').center().open();
         });
     }
@@ -174,17 +163,9 @@
                 modal: true,
                 close: function (e) {
                 }
-            }).data('kendoWindow').title('${message(code:'customerService.edit')}').center().open().bind("refresh", function () {
+            }).data('kendoWindow').title('${message(code:'serviceParameterLimit.edit')}').center().open().bind("refresh", function () {
             $('#formWindow').data('kendoWindow').center().open();
         });
-    }
-
-    function viewLimits(e) {
-        window.location.href = '${createLink(controller: 'serviceRateLimit', action: 'list')}/' + this.dataItem($(e.currentTarget).closest("tr")).id;
-    }
-
-    function viewParameterLimits(e) {
-        window.location.href = '${createLink(controller: 'serviceParameterLimit', action: 'list')}/' + this.dataItem($(e.currentTarget).closest("tr")).id;
     }
 
     function saveItem() {
@@ -201,11 +182,11 @@
                     $('#formWindow').data('kendoWindow').close();
                 }
                 else
-                    window.alert('${message(code:'customerService.save.error')}');
+                    window.alert('${message(code:'serviceParameterLimit.save.error')}');
 
             },
             error: function () {
-                window.alert('${message(code:'customerService.save.error')}');
+                window.alert('${message(code:'serviceParameterLimit.save.error')}');
             }
         });
     }
@@ -218,7 +199,7 @@
     function removeGridItem(e) {
         if (idForDelete == 0) {
             idForDelete = this.dataItem($(e.currentTarget).closest("tr")).id;
-            confirm('${message(code:'customerService.delete.confirm')}', deleteItem, cancelDelete);
+            confirm('${message(code:'serviceParameterLimit.delete.confirm')}', deleteItem, cancelDelete);
         }
 
     }
@@ -240,11 +221,19 @@
                     documentListView.refresh();
                 }
                 else {
-                    window.alert('${message(code:'customerService.delete.error')}');
+                    window.alert('${message(code:'serviceParameterLimit.delete.error')}');
                 }
             });
             idForDelete = 0;
         }
+    }
+
+    function viewPreConditions(e) {
+        window.location.href = '${createLink(controller: 'serviceParameterCondition', action: 'list')}/' + this.dataItem($(e.currentTarget).closest("tr")).id + '?type=pre';
+    }
+
+    function viewPostConditions(e) {
+        window.location.href = '${createLink(controller: 'serviceParameterCondition', action: 'list')}/' + this.dataItem($(e.currentTarget).closest("tr")).id + '?type=post';
     }
 </script>
 </body>

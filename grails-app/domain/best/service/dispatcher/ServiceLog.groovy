@@ -5,13 +5,13 @@ class ServiceLog {
     Customer customer
     ServiceDefinition serviceDefinition
     ServiceInstance serviceInstance
-    Date requestTime
     Long responseTime
-    String parameters
     String response
+    Date dateCreated
+
+    static hasMany = [parameters: ServiceLogParameter]
 
     static mapping = {
-        parameters sqlType: 'clob'
         response sqlType: 'clob'
     }
 

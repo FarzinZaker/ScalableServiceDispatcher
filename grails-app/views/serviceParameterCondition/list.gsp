@@ -9,7 +9,7 @@
 <html>
 <head>
     <meta name="layout" content="main"/>
-    <title><g:message code="menu.customers.services" args="${[customer?.name]}"/></title>
+    <title><g:message code="menu.customers.services.parameterLimits.${params.type}" args="${[limit?.name]}"/></title>
     <form:datePickerResources/>
 </head>
 
@@ -20,7 +20,9 @@
             <layout:breadcrumb items="${[
                     [text: '', url: createLink(uri: '/')],
                     [text: message(code: 'menu.customers'), url: createLink(controller: 'customer', action: 'list')],
-                    [text: message(code: 'menu.customers.services', args: [customer?.name]), url: createLink(action: 'list', id: params.id)]
+                    [text: message(code: 'menu.customers.services', args: [limit?.customerService?.customer?.name]), url: createLink(controller: 'customerService', action: 'list', id: limit?.customerService?.customer?.id)],
+                    [text: message(code: 'menu.customers.services.parameterLimits', args: [limit?.customerService?.service?.name]), url: createLink(controller: 'serviceParameterLimit', action: 'list', id: limit?.customerService?.id)],
+                    [text: message(code: "menu.customers.services.parameterLimits.${params.type}", args: [limit?.name]), url: createLink(action: 'list', id: params.id, params: [type: params.type])]
             ]}"/>
         </div>
     </div>
@@ -57,7 +59,7 @@
                 transport: {
                     type: 'odata',
                     read: {
-                        url: "${createLink(action: 'jsonList', params:[customer: params.id])}",
+                        url: "<format:html value="${createLink(action: 'jsonList', params:[limit:params.id, type:params.type])}"/>",
                         dataType: "json",
                         type: "POST"
 
@@ -75,9 +77,11 @@
                     model: {
                         fields: {
                             id: {type: "number"},
-                            service: {type: "string"},
-                            startDate: {type: "string"},
-                            endDate: {type: "string"},
+                            parameter: {type: "string"},
+                            count: {type: "number"},
+                            unit: {type: "string"},
+                            operator: {type: "string"},
+                            value: {type: "string"},
                             lastUpdated: {type: "string"}
                         }
                     },
@@ -97,40 +101,38 @@
             columns: [
                 {
                     field: "id",
-                    title: "${message(code:'customerService.id.label')}",
+                    title: "${message(code:'serviceParameterCondition.id.label')}",
                     filterable: false
                 },
                 {
-                    field: "service",
-                    title: "${message(code:'customerService.service.label')}",
+                    field: "parameter",
+                    title: "${message(code:'serviceParameterCondition.parameter.label')}",
                     filterable: false
                 },
                 {
-                    field: "startDate",
-                    title: "${message(code:'customerService.startDate.label')}",
+                    field: "count",
+                    title: "${message(code:'serviceParameterCondition.count.label')}",
                     filterable: false
                 },
                 {
-                    field: "endDate",
-                    title: "${message(code:'customerService.endDate.label')}",
+                    field: "unit",
+                    title: "${message(code:'serviceParameterCondition.unit.label')}",
+                    filterable: false
+                },
+                {
+                    field: "operator",
+                    title: "${message(code:'serviceParameterCondition.operator.label')}",
+                    filterable: false
+                },
+                {
+                    field: "value",
+                    title: "${message(code:'serviceParameterCondition.value.label')}",
                     filterable: false
                 },
                 {
                     field: "lastUpdated",
-                    title: "${message(code:'customerService.lastUpdated.label')}",
+                    title: "${message(code:'serviceParameterCondition.lastUpdated.label')}",
                     filterable: false
-                },
-                {
-                    command: {text: "${message(code:'parameterLimits')}", click: viewParameterLimits},
-                    title: "",
-                    width: "165px",
-                    headerAttributes: {style: "text-align: center"}
-                },
-                {
-                    command: {text: "${message(code:'rateLimits')}", click: viewLimits},
-                    title: "",
-                    width: "165px",
-                    headerAttributes: {style: "text-align: center"}
                 },
                 {
                     command: {text: "${message(code:'edit')}", click: editGridItem},
@@ -147,7 +149,7 @@
             ],
             toolbar: [
                 {
-                    template: "<a class='k-button k-button-icontext k-grid-add' href='javascript:addGridItem();'>${message(code: 'customerService.add')}</a>"
+                    template: "<a class='k-button k-button-icontext k-grid-add' href='javascript:addGridItem();'>${message(code: 'serviceParameterCondition.add.pre')}</a>"
                 }
             ]
         });
@@ -157,11 +159,11 @@
         $('#formWindow').html($('#formWindowLoading').html())
             .kendoWindow({
                 width: '820px',
-                content: '${createLink(action: 'create', params:[customer:params.id])}',
+                content: '<format:html value="${createLink(action: 'create', params:[limit:params.id, type:params.type])}"/>',
                 modal: true,
                 close: function (e) {
                 }
-            }).data('kendoWindow').title('${message(code:'customerService.add')}').center().open().bind("refresh", function () {
+            }).data('kendoWindow').title('${message(code:'serviceParameterCondition.add.pre')}').center().open().bind("refresh", function () {
             $('#formWindow').data('kendoWindow').center().open();
         });
     }
@@ -174,17 +176,9 @@
                 modal: true,
                 close: function (e) {
                 }
-            }).data('kendoWindow').title('${message(code:'customerService.edit')}').center().open().bind("refresh", function () {
+            }).data('kendoWindow').title('${message(code:'serviceParameterCondition.edit')}').center().open().bind("refresh", function () {
             $('#formWindow').data('kendoWindow').center().open();
         });
-    }
-
-    function viewLimits(e) {
-        window.location.href = '${createLink(controller: 'serviceRateLimit', action: 'list')}/' + this.dataItem($(e.currentTarget).closest("tr")).id;
-    }
-
-    function viewParameterLimits(e) {
-        window.location.href = '${createLink(controller: 'serviceParameterLimit', action: 'list')}/' + this.dataItem($(e.currentTarget).closest("tr")).id;
     }
 
     function saveItem() {
@@ -201,11 +195,11 @@
                     $('#formWindow').data('kendoWindow').close();
                 }
                 else
-                    window.alert('${message(code:'customerService.save.error')}');
+                    window.alert('${message(code:'serviceParameterCondition.save.error')}');
 
             },
             error: function () {
-                window.alert('${message(code:'customerService.save.error')}');
+                window.alert('${message(code:'serviceParameterCondition.save.error')}');
             }
         });
     }
@@ -218,7 +212,7 @@
     function removeGridItem(e) {
         if (idForDelete == 0) {
             idForDelete = this.dataItem($(e.currentTarget).closest("tr")).id;
-            confirm('${message(code:'customerService.delete.confirm')}', deleteItem, cancelDelete);
+            confirm('${message(code:'serviceParameterCondition.delete.confirm')}', deleteItem, cancelDelete);
         }
 
     }
@@ -240,7 +234,7 @@
                     documentListView.refresh();
                 }
                 else {
-                    window.alert('${message(code:'customerService.delete.error')}');
+                    window.alert('${message(code:'serviceParameterCondition.delete.error')}');
                 }
             });
             idForDelete = 0;
