@@ -36,25 +36,92 @@ class DispatchService {
     def parameterLimitService
 
     def execute(String customerName, String serviceName, String parameters, String key) {
-        def requestTime = new Date()
         def customer = getCustomer(customerName)
         checkKey(customerName, customer?.key, serviceName, parameters, key)
         def serviceDefinition = getServiceDefinition(serviceName)
         def customerService = getCustomerService(customer, serviceDefinition)
         rateService.applyRateLimit(customerService)
+
+        def extractedParameters = parameters ? parameterService.extractParameters(serviceDefinition, parameters, customer) : [:]
+        parameterLimitService.applyParameterLimits(customerService, extractedParameters)
+
+        if (customerService.minimumSignatures > 0) {
+            def serviceDraft = new ServiceDraft(customer: customer, serviceDefinition: serviceDefinition).save(flush: true)
+            if (serviceDraft)
+                extractedParameters.each {
+                    def draftParameter = new ServiceDraftParameter(draft: serviceDraft, parameter: ServiceParameter.findByServiceDefinitionAndNameAndDeleted(serviceDefinition, it.key, false), value: it.value)
+                    draftParameter.save(flush: true)
+                }
+            [
+                    result: 'Service execution is waiting for signatures.'
+            ]
+        } else {
+            def requestTime = new Date()
+            def serviceInstance = getServiceInstance(serviceDefinition)
+            def actorType = "${messageSource.getMessage("serviceInstance.type.${serviceInstance.type}", null, LCH.getLocale())}Actor"
+            Props props = SpringExtProvider.get(actorSystem).props(actorType)
+            def actorName = "${serviceDefinition.englishName}-${serviceInstance.id}"
+            ActorRef actorRef = actorSystem.actorFor("user/${actorName}")
+            if (actorRef?.terminated)
+                actorRef = actorSystem.actorOf(props, actorName)
+            def response = ([result: 'development mode'] as JSON)
+            if (!Environment.isDevelopmentMode()) {
+                def query = new ServiceCall(customerId: customer?.id, serviceInstanceId: serviceInstance?.id, parameters: extractedParameters)
+                Future<Object> futureResults = ask(actorRef, query, TIMEOUT)
+                response = Await.result(futureResults, DURATION)
+            }
+            def responseTime = new Date() - requestTime
+            def serviceLog = new ServiceLog(customer: customer, serviceDefinition: serviceDefinition, serviceInstance: serviceInstance, responseTime: responseTime, response: response?.toString() ?: '').save(flush: true)
+            if (serviceLog)
+                extractedParameters.each {
+                    def parameterLog = new ServiceLogParameter(log: serviceLog, parameter: ServiceParameter.findByServiceDefinitionAndNameAndDeleted(serviceDefinition, it.key, false), value: it.value)
+                    parameterLog.save(flush: true)
+                }
+            response
+        }
+    }
+
+    def checkDraft(ServiceDraft draft) {
+        def customerService = CustomerService.findByCustomerAndServiceAndDeleted(draft.customer, draft.serviceDefinition, false)
+        if (!customerService)
+            return false
+        def requiredSignatures = CustomerServiceSignature.findAllByCustomerServiceAndDeleted(customerService, false)
+        def currentSignatures = ServiceDraftSignature.findAllByDraft(draft)
+        def acceptSignatures = currentSignatures.findAll { it.decision == 'accept' }
+        //received required signatures
+        if (acceptSignatures.size() >= customerService.minimumSignatures
+                && !requiredSignatures.findAll { it.required }.collect { it.customerUser?.user?.id }.any { !acceptSignatures.collect { it.user?.id }.contains(it) }) {
+            return true
+        }
+        //received all signatures (rejected)
+        if (!requiredSignatures.collect { it.customerUser?.user?.id }.any { !currentSignatures.collect { it.user?.id }.contains(it) }) {
+            draft.done = true
+            draft.save()
+        }
+        return false
+    }
+
+    def executeDraft(ServiceDraft draft) {
+
+        if (!checkDraft(draft))
+            return
+
+        def requestTime = new Date()
+        def serviceDefinition = draft.serviceDefinition
+        def customer = draft.customer
+        def parametersMap = new HashMap<String, String>()
+        ServiceDraftParameter.findAllByDraft(draft).each {
+            parametersMap.put(it.parameter?.name, it.value)
+        }
+        def parameters = (parametersMap as JSON).toString()
+        def extractedParameters = parameters ? parameterService.extractParameters(serviceDefinition, parameters, customer) : [:]
         def serviceInstance = getServiceInstance(serviceDefinition)
-
-
         def actorType = "${messageSource.getMessage("serviceInstance.type.${serviceInstance.type}", null, LCH.getLocale())}Actor"
         Props props = SpringExtProvider.get(actorSystem).props(actorType)
         def actorName = "${serviceDefinition.englishName}-${serviceInstance.id}"
         ActorRef actorRef = actorSystem.actorFor("user/${actorName}")
         if (actorRef?.terminated)
             actorRef = actorSystem.actorOf(props, actorName)
-
-        def extractedParameters = parameters ? parameterService.extractParameters(serviceDefinition, parameters, customer) : [:]
-        parameterLimitService.applyParameterLimits(customerService, extractedParameters)
-
         def response = ([result: 'development mode'] as JSON)
         if (!Environment.isDevelopmentMode()) {
             def query = new ServiceCall(customerId: customer?.id, serviceInstanceId: serviceInstance?.id, parameters: extractedParameters)
@@ -68,8 +135,6 @@ class DispatchService {
                 def parameterLog = new ServiceLogParameter(log: serviceLog, parameter: ServiceParameter.findByServiceDefinitionAndNameAndDeleted(serviceDefinition, it.key, false), value: it.value)
                 parameterLog.save(flush: true)
             }
-
-        response
     }
 
     private static Customer getCustomer(String customerName) {

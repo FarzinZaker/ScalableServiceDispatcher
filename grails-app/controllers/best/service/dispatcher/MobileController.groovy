@@ -5,6 +5,7 @@ import grails.converters.JSON
 class MobileController {
 
     def springSecurityService
+    def dispatchService
 
     def authenticate() {
         if (!params.username || !params.password) {
@@ -180,6 +181,10 @@ class MobileController {
         signature.draft = draft
         signature.user = user
         signature.decision = params.decision
+        signature.save()
+
+        dispatchService.executeDraft(draft)
+
         render([
                 status: 's',
                 body  : ''
