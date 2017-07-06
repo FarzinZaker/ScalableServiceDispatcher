@@ -9,7 +9,8 @@
 <html>
 <head>
     <meta name="layout" content="main"/>
-    <title><g:message code="menu.customers"/></title>
+    <title><g:message code="menu.customers.users" args="${[customer?.name]}"/></title>
+    <form:datePickerResources/>
 </head>
 
 <body>
@@ -18,7 +19,8 @@
         <div class="col-xs-12">
             <layout:breadcrumb items="${[
                     [text: '', url: createLink(uri: '/')],
-                    [text: message(code: 'menu.customers'), url: createLink(action: 'list')],
+                    [text: message(code: 'menu.customers'), url: createLink(controller: 'customer', action: 'list')],
+                    [text: message(code: 'menu.customers.users', args: [customer?.name]), url: createLink(action: 'list', id: params.id)]
             ]}"/>
         </div>
     </div>
@@ -55,7 +57,7 @@
                 transport: {
                     type: 'odata',
                     read: {
-                        url: "${createLink(action: 'jsonList')}",
+                        url: "${createLink(action: 'jsonList', params:[customer: params.id])}",
                         dataType: "json",
                         type: "POST"
 
@@ -73,8 +75,9 @@
                     model: {
                         fields: {
                             id: {type: "number"},
-                            name: {type: "string"},
-                            englishName: {type: "string"},
+                            user: {type: "string"},
+                            startDate: {type: "string"},
+                            endDate: {type: "string"},
                             lastUpdated: {type: "string"}
                         }
                     },
@@ -85,7 +88,7 @@
                 serverPaging: true,
                 serverFiltering: true,
                 serverSorting: true,
-                sort: {field: "name", dir: "asc"}
+                sort: {field: "lastUpdated", dir: "desc"}
             },
             filterable: false,
             sortable: true,
@@ -94,40 +97,18 @@
             columns: [
                 {
                     field: "id",
-                    title: "${message(code:'customer.id.label')}",
+                    title: "${message(code:'customerUser.id.label')}",
                     filterable: false
                 },
                 {
-                    field: "name",
-                    title: "${message(code:'customer.name.label')}",
-                    filterable: false
-                },
-                {
-                    field: "englishName",
-                    title: "${message(code:'customer.englishName.label')}",
-                    filterable: false
-                },
-                {
-                    field: "clientNo",
-                    title: "${message(code:'customer.clientNo.label')}",
+                    field: "user",
+                    title: "${message(code:'customerUser.user.label')}",
                     filterable: false
                 },
                 {
                     field: "lastUpdated",
-                    title: "${message(code:'customer.lastUpdated.label')}",
+                    title: "${message(code:'customerUser.lastUpdated.label')}",
                     filterable: false
-                },
-                {
-                    command: {text: "${message(code:'customer.services.list')}", click: serviceList},
-                    title: "",
-                    width: "105px",
-                    headerAttributes: {style: "text-align: center"}
-                },
-                {
-                    command: {text: "${message(code:'customer.users.list')}", click: userList},
-                    title: "",
-                    width: "85px",
-                    headerAttributes: {style: "text-align: center"}
                 },
                 {
                     command: {text: "${message(code:'edit')}", click: editGridItem},
@@ -144,7 +125,7 @@
             ],
             toolbar: [
                 {
-                    template: "<a class='k-button k-button-icontext k-grid-add' href='javascript:addGridItem();'>${message(code: 'customer.add')}</a>"
+                    template: "<a class='k-button k-button-icontext k-grid-add' href='javascript:addGridItem();'>${message(code: 'customerUser.add')}</a>"
                 }
             ]
         });
@@ -154,11 +135,11 @@
         $('#formWindow').html($('#formWindowLoading').html())
             .kendoWindow({
                 width: '820px',
-                content: '${createLink(action: 'create')}',
+                content: '${createLink(action: 'create', params:[customer:params.id])}',
                 modal: true,
                 close: function (e) {
                 }
-            }).data('kendoWindow').title('${message(code:'customer.add')}').center().open().bind("refresh", function () {
+            }).data('kendoWindow').title('${message(code:'customerUser.add')}').center().open().bind("refresh", function () {
             $('#formWindow').data('kendoWindow').center().open();
         });
     }
@@ -171,14 +152,22 @@
                 modal: true,
                 close: function (e) {
                 }
-            }).data('kendoWindow').title('${message(code:'customer.edit')}').center().open().bind("refresh", function () {
+            }).data('kendoWindow').title('${message(code:'customerUser.edit')}').center().open().bind("refresh", function () {
             $('#formWindow').data('kendoWindow').center().open();
         });
     }
 
+    function viewLimits(e) {
+        window.location.href = '${createLink(controller: 'userRateLimit', action: 'list')}/' + this.dataItem($(e.currentTarget).closest("tr")).id;
+    }
+
+    function viewParameterLimits(e) {
+        window.location.href = '${createLink(controller: 'userParameterLimit', action: 'list')}/' + this.dataItem($(e.currentTarget).closest("tr")).id;
+    }
+
     function saveItem() {
         $.ajax({
-            url: "${createLink(action: 'save', params: [id: params.id])}",
+            url: "${createLink(action: 'save')}",
             dataType: "json",
             data: $('#itemForm').serialize(),
             type: "POST",
@@ -190,11 +179,11 @@
                     $('#formWindow').data('kendoWindow').close();
                 }
                 else
-                    window.alert('${message(code:'customer.save.error')}');
+                    window.alert('${message(code:'customerUser.save.error')}');
 
             },
             error: function () {
-                window.alert('${message(code:'customer.save.error')}');
+                window.alert('${message(code:'customerUser.save.error')}');
             }
         });
     }
@@ -207,7 +196,7 @@
     function removeGridItem(e) {
         if (idForDelete == 0) {
             idForDelete = this.dataItem($(e.currentTarget).closest("tr")).id;
-            confirm('${message(code:'customer.delete.confirm')}', deleteItem, cancelDelete);
+            confirm('${message(code:'customerUser.delete.confirm')}', deleteItem, cancelDelete);
         }
 
     }
@@ -229,19 +218,11 @@
                     documentListView.refresh();
                 }
                 else {
-                    window.alert('${message(code:'customer.delete.error')}');
+                    window.alert('${message(code:'customerUser.delete.error')}');
                 }
             });
             idForDelete = 0;
         }
-    }
-
-    function serviceList(e) {
-        window.location.href = '${createLink(controller: 'customerService', action: 'list')}/' + this.dataItem($(e.currentTarget).closest("tr")).id;
-    }
-
-    function userList(e) {
-        window.location.href = '${createLink(controller: 'customerUser', action: 'list')}/' + this.dataItem($(e.currentTarget).closest("tr")).id;
     }
 </script>
 </body>

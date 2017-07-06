@@ -23,6 +23,9 @@
         <form:datePicker name="endDate" entity="${item}" style="width:400px;"
                          value="${format.jalaliDate(date: item?.id ? item?.endDate : new Date() + 30)}"/>
     </form:field>
+    <form:field fieldName="customerService.minimumSignatures">
+        <form:numericTextBox name="minimumSignatures" entity="${item}" style="width:400px;"/>
+    </form:field>
     <div class="toolbar">
         <form:button onclick="saveItem()" text="${message(code: 'save')}" class="btn-right"/>
         <form:button onclick="cancelEdit()" text="${message(code: 'cancel')}" class="btn-left"/>

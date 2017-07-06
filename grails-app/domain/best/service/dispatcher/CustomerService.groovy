@@ -6,6 +6,7 @@ class CustomerService {
     ServiceDefinition service
     Date startDate
     Date endDate
+    Integer minimumSignatures = 0
     Boolean deleted = false
     Date dateCreated
     Date lastUpdated
@@ -15,5 +16,6 @@ class CustomerService {
         service()
         startDate(nullable: true)
         endDate(nullable: true)
+        minimumSignatures(nullable: true)
     }
 }

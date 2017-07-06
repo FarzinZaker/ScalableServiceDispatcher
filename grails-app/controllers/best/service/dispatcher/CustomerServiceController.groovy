@@ -56,6 +56,7 @@ class CustomerServiceController {
         item.service = ServiceDefinition.get(params.service.id)
         item.startDate = parseDate(params.startDate)
         item.endDate = parseDate(params.endDate)
+        item.minimumSignatures = params.minimumSignatures as Integer
         if (item.save(flush: true))
             render '1'
         else

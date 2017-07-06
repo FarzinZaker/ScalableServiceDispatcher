@@ -133,6 +133,12 @@
                     headerAttributes: {style: "text-align: center"}
                 },
                 {
+                    command: {text: "${message(code:'signatures')}", click: signatures},
+                    title: "",
+                    width: "95px",
+                    headerAttributes: {style: "text-align: center"}
+                },
+                {
                     command: {text: "${message(code:'edit')}", click: editGridItem},
                     title: "",
                     width: "85px",
@@ -185,6 +191,10 @@
 
     function viewParameterLimits(e) {
         window.location.href = '${createLink(controller: 'serviceParameterLimit', action: 'list')}/' + this.dataItem($(e.currentTarget).closest("tr")).id;
+    }
+
+    function signatures(e) {
+        window.location.href = '${createLink(controller: 'customerServiceSignature', action: 'list')}/' + this.dataItem($(e.currentTarget).closest("tr")).id;
     }
 
     function saveItem() {
