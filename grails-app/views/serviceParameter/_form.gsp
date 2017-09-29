@@ -22,6 +22,15 @@
                      preSelect="" allowUserInput="true"
                      items="${[null, 'customer.clientNo'].collect { [text: message(code: "${it}"), value: it] }}"/>
     </form:field>
+    <form:field fieldName="serviceParameter.displayForSignature" showLabel="0">
+        <div style="width: 400px;padding-top:20px;">
+            <form:checkbox name="displayForSignature" checked="${item?.displayForSignature}"
+                           text="${message(code: 'serviceParameter.displayForSignature.label')}"/>
+        </div>
+    </form:field>
+    <form:field fieldName="serviceParameter.displayName">
+        <form:textBox name="displayName" entity="${item}" style="width:400px;"/>
+    </form:field>
     <div class="toolbar">
         <form:button onclick="saveItem()" text="${message(code: 'save')}" class="btn-right"/>
         <form:button onclick="cancelEdit()" text="${message(code: 'cancel')}" class="btn-left"/>

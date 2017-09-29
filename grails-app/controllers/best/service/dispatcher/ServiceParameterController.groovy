@@ -22,12 +22,14 @@ class ServiceParameterController {
 
         value.data = list.collect {
             [
-                    id         : it.id,
-                    name       : it.name,
-                    type       : message(code: "serviceParameter.type.${it.type}"),
-                    required   : it.required,
-                    systemValue: message(code: "${it.systemValue}"),
-                    lastUpdated: format.jalaliDate(date: it.lastUpdated, hm: true)
+                    id                 : it.id,
+                    name               : it.name,
+                    type               : message(code: "serviceParameter.type.${it.type}"),
+                    required           : it.required,
+                    displayName        : it.displayName,
+                    displayForSignature: it.displayForSignature,
+                    systemValue        : message(code: "${it.systemValue}"),
+                    lastUpdated        : format.jalaliDate(date: it.lastUpdated, hm: true)
             ]
         }
 

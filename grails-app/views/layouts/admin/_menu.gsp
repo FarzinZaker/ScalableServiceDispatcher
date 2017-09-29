@@ -14,6 +14,9 @@
     <a href="${createLink(controller: 'customer', action: 'list')}"><g:message code="menu.customers"/></a>
 </li>
 <li>
+    <a href="${createLink(controller: 'app', action: 'list')}"><g:message code="menu.apps"/></a>
+</li>
+<li>
     <a href="#">
         <g:message code="menu.users"/>
     </a>

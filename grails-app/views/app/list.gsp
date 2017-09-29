@@ -9,7 +9,7 @@
 <html>
 <head>
     <meta name="layout" content="main"/>
-    <title><g:message code="menu.services.serviceDefinition.parameters" args="${[serviceDefinition?.name]}"/></title>
+    <title><g:message code="menu.apps"/></title>
 </head>
 
 <body>
@@ -18,9 +18,7 @@
         <div class="col-xs-12">
             <layout:breadcrumb items="${[
                     [text: '', url: createLink(uri: '/')],
-                    [text: message(code: 'menu.services'), url: '#'],
-                    [text: message(code: 'menu.services.serviceDefinition'), url: createLink(controller: 'serviceDefinition', action: 'list')],
-                    [text: message(code: 'menu.services.serviceDefinition.parameters', args: [serviceDefinition?.name]), url: createLink(action: 'list', id: params.id)]
+                    [text: message(code: 'menu.apps'), url: createLink(action: 'list')],
             ]}"/>
         </div>
     </div>
@@ -57,7 +55,7 @@
                 transport: {
                     type: 'odata',
                     read: {
-                        url: "${createLink(action: 'jsonList', params:[serviceDefinition: params.id])}",
+                        url: "${createLink(action: 'jsonList')}",
                         dataType: "json",
                         type: "POST"
 
@@ -76,8 +74,7 @@
                         fields: {
                             id: {type: "number"},
                             name: {type: "string"},
-                            required: {type: "boolean"},
-                            type: {type: "string"},
+                            englishName: {type: "string"},
                             lastUpdated: {type: "string"}
                         }
                     },
@@ -97,50 +94,29 @@
             columns: [
                 {
                     field: "id",
-                    title: "${message(code:'serviceParameter.id.label')}",
+                    title: "${message(code:'app.id.label')}",
                     filterable: false
                 },
                 {
                     field: "name",
-                    title: "${message(code:'serviceParameter.name.label')}",
+                    title: "${message(code:'app.name.label')}",
                     filterable: false
                 },
                 {
-                    field: "type",
-                    title: "${message(code:'serviceParameter.type.label')}",
+                    field: "englishName",
+                    title: "${message(code:'app.englishName.label')}",
                     filterable: false
-                },
-                {
-                    field: "required",
-                    title: "${message(code:'serviceParameter.required.label')}",
-                    filterable: false,
-                    template: "<i class=\"fa #: required ? 'fa-thumbs-up' : '' #\"></i>",
-                    width: "80px",
-                    attributes: {style: "text-align: center"},
-                    headerAttributes: {style: "text-align: center"}
-                },
-                {
-                    field: "systemValue",
-                    title: "${message(code:'serviceParameter.systemValue.label')}",
-                    filterable: false
-                },
-                {
-                    field: "displayName",
-                    title: "${message(code:'serviceParameter.displayName.label')}",
-                    filterable: false
-                },
-                {
-                    field: "displayForSignature",
-                    title: "${message(code:'serviceParameter.displayForSignature.label')}",
-                    filterable: false,
-                    template: "<i class=\"fa #: displayForSignature ? 'fa-thumbs-up' : '' #\"></i>",
-                    attributes: {style: "text-align: center"},
-                    headerAttributes: {style: "text-align: center"}
                 },
                 {
                     field: "lastUpdated",
-                    title: "${message(code:'serviceParameter.lastUpdated.label')}",
+                    title: "${message(code:'app.lastUpdated.label')}",
                     filterable: false
+                },
+                {
+                    command: {text: "${message(code:'app.customers.list')}", click: customerList},
+                    title: "",
+                    width: "140px",
+                    headerAttributes: {style: "text-align: center"}
                 },
                 {
                     command: {text: "${message(code:'edit')}", click: editGridItem},
@@ -157,7 +133,7 @@
             ],
             toolbar: [
                 {
-                    template: "<a class='k-button k-button-icontext k-grid-add' href='javascript:addGridItem();'>${message(code: 'serviceParameter.add')}</a>"
+                    template: "<a class='k-button k-button-icontext k-grid-add' href='javascript:addGridItem();'>${message(code: 'app.add')}</a>"
                 }
             ]
         });
@@ -167,11 +143,11 @@
         $('#formWindow').html($('#formWindowLoading').html())
             .kendoWindow({
                 width: '820px',
-                content: '${createLink(action: 'create', params:[serviceDefinition:params.id])}',
+                content: '${createLink(action: 'create')}',
                 modal: true,
                 close: function (e) {
                 }
-            }).data('kendoWindow').title('${message(code:'serviceParameter.add')}').center().open().bind("refresh", function () {
+            }).data('kendoWindow').title('${message(code:'app.add')}').center().open().bind("refresh", function () {
             $('#formWindow').data('kendoWindow').center().open();
         });
     }
@@ -184,14 +160,14 @@
                 modal: true,
                 close: function (e) {
                 }
-            }).data('kendoWindow').title('${message(code:'serviceParameter.edit')}').center().open().bind("refresh", function () {
+            }).data('kendoWindow').title('${message(code:'app.edit')}').center().open().bind("refresh", function () {
             $('#formWindow').data('kendoWindow').center().open();
         });
     }
 
     function saveItem() {
         $.ajax({
-            url: "${createLink(action: 'save')}",
+            url: "${createLink(action: 'save', params: [id: params.id])}",
             dataType: "json",
             data: $('#itemForm').serialize(),
             type: "POST",
@@ -203,11 +179,11 @@
                     $('#formWindow').data('kendoWindow').close();
                 }
                 else
-                    window.alert('${message(code:'serviceParameter.save.error')}');
+                    window.alert('${message(code:'app.save.error')}');
 
             },
             error: function () {
-                window.alert('${message(code:'serviceParameter.save.error')}');
+                window.alert('${message(code:'app.save.error')}');
             }
         });
     }
@@ -220,7 +196,7 @@
     function removeGridItem(e) {
         if (idForDelete == 0) {
             idForDelete = this.dataItem($(e.currentTarget).closest("tr")).id;
-            confirm('${message(code:'serviceParameter.delete.confirm')}', deleteItem, cancelDelete);
+            confirm('${message(code:'app.delete.confirm')}', deleteItem, cancelDelete);
         }
 
     }
@@ -242,11 +218,15 @@
                     documentListView.refresh();
                 }
                 else {
-                    window.alert('${message(code:'serviceParameter.delete.error')}');
+                    window.alert('${message(code:'app.delete.error')}');
                 }
             });
             idForDelete = 0;
         }
+    }
+
+    function customerList(e) {
+        window.location.href = '${createLink(controller: 'appCustomer', action: 'list')}/' + this.dataItem($(e.currentTarget).closest("tr")).id;
     }
 </script>
 </body>

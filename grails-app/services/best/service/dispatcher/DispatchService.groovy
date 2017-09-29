@@ -4,7 +4,6 @@ import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import akka.actor.Props
 import akka.util.Timeout
-import best.service.dispatcher.actors.rest.RESTActor
 import grails.converters.JSON
 import grails.transaction.Transactional
 import grails.util.Environment
@@ -35,9 +34,22 @@ class DispatchService {
     def rateService
     def parameterLimitService
 
-    def execute(String customerName, String serviceName, String parameters, String key) {
+    def executeAsCustomer(String customerName, String serviceName, String parameters, String key) {
         def customer = getCustomer(customerName)
         checkKey(customerName, customer?.key, serviceName, parameters, key)
+        execute(customer, serviceName, parameters)
+    }
+
+    def executeAsApp(String appName, String customerName, String serviceName, String parameters, String key) {
+        def app = getApp(appName)
+        checkKey(appName, app?.key, serviceName, parameters, key)
+        def customer = getCustomer(customerName)
+        getAppCustomer(app, customer)
+        execute(customer, serviceName, parameters)
+
+    }
+
+    def execute(Customer customer, String serviceName, String parameters) {
         def serviceDefinition = getServiceDefinition(serviceName)
         def customerService = getCustomerService(customer, serviceDefinition)
         rateService.applyRateLimit(customerService)
@@ -52,9 +64,9 @@ class DispatchService {
                     def draftParameter = new ServiceDraftParameter(draft: serviceDraft, parameter: ServiceParameter.findByServiceDefinitionAndNameAndDeleted(serviceDefinition, it.key, false), value: it.value)
                     draftParameter.save(flush: true)
                 }
-            [
+            ([
                     result: 'Service execution is waiting for signatures.'
-            ]
+            ] as JSON)
         } else {
             def requestTime = new Date()
             def serviceInstance = getServiceInstance(serviceDefinition)
@@ -137,6 +149,13 @@ class DispatchService {
             }
     }
 
+    private static App getApp(String appName) {
+        def app = App.findByEnglishNameAndDeleted(appName as String, false)
+        if (!app)
+            throw new ServiceException(109, [appName])
+        app
+    }
+
     private static Customer getCustomer(String customerName) {
         def customer = Customer.findByEnglishNameAndDeleted(customerName as String, false)
         if (!customer)
@@ -144,9 +163,9 @@ class DispatchService {
         customer
     }
 
-    private static void checkKey(String customerName, String customerKey, String serviceName, String parameters, key) {
+    private static void checkKey(String consumerName, String consumerKey, String serviceName, String parameters, key) {
         def digest = MessageDigest.getInstance("SHA-256")
-        byte[] hash = digest.digest("${customerName}${serviceName}${parameters ?: ''}${customerKey}".getBytes(StandardCharsets.UTF_8))
+        byte[] hash = digest.digest("${consumerName}${serviceName}${parameters ?: ''}${consumerKey}".getBytes(StandardCharsets.UTF_8))
         def hashString = hash.encodeAsHex() //new String(hash, StandardCharsets.UTF_8)
         if (hashString != key)
             throw new ServiceException(102, [key])
@@ -157,6 +176,13 @@ class DispatchService {
         if (!serviceDefinition)
             throw new ServiceException(103, [serviceName])
         serviceDefinition
+    }
+
+    private static AppCustomer getAppCustomer(App app, Customer customer) {
+        def appCustomer = AppCustomer.findByAppAndCustomerAndDeleted(app, customer, false)
+        if (!appCustomer)
+            throw new ServiceException(110, [customer.name, app.name])
+        appCustomer
     }
 
     private static CustomerService getCustomerService(Customer customer, ServiceDefinition serviceDefinition) {

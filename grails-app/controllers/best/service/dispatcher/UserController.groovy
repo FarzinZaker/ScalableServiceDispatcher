@@ -12,13 +12,13 @@ class UserController {
     def changePassword() {
 
         def user = User.findByUsername((springSecurityService.currentUser as User).username)
-        [askForOldPassword: user.password != springSecurityService.encodePassword(' ')]
+        [askForOldPassword: true]
     }
 
     @Secured([RoleHelper.ROLE_ADMIN, RoleHelper.ROLE_USER])
     def saveNewPassword() {
         def user = User.findByUsername((springSecurityService.currentUser as User).username)
-        if (user.password == springSecurityService.encodePassword(params.oldPassword) || user.password == springSecurityService.encodePassword(' ')) {
+        if(springSecurityService.passwordEncoder.isPasswordValid(user.password, params.oldPassword, null)){
             if (params.newPassword.trim() != '') {
                 if (params.newPassword == params.newPassword_confirmation) {
                     user.password = params.newPassword

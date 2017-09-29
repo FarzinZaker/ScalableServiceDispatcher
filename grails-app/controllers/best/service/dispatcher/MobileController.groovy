@@ -1,6 +1,7 @@
 package best.service.dispatcher
 
 import grails.converters.JSON
+import grails.plugin.springsecurity.authentication.encoding.BCryptPasswordEncoder
 
 class MobileController {
 
@@ -25,7 +26,7 @@ class MobileController {
             return
         }
 
-        if (user.password == springSecurityService.encodePassword(params.password?.toString())) {
+        if (springSecurityService.passwordEncoder.isPasswordValid(user.password, params.password?.toString(), null)) {
             render([
                     status: 's',
                     id    : user.id?.toString()
@@ -46,6 +47,9 @@ class MobileController {
             ] as JSON)
 
         }
+        def minId = 0
+        if (params.after)
+            minId = params.after?.toString()?.toLong()
         def user = User.get(params.user as Long)
         if (!user) {
             render([
@@ -62,8 +66,10 @@ class MobileController {
 
         def drafts = []
         signatures.each { signature ->
-            drafts.addAll(ServiceDraft.findAllByCustomerAndServiceDefinitionAndDone(signature.customer, signature.service, false) ?: [])
+            if (signature?.id > minId)
+                drafts.addAll(ServiceDraft.findAllByCustomerAndServiceDefinitionAndDone(signature.customer, signature.service, false) ?: [])
         }
+        drafts = drafts.findAll { !ServiceDraftSignature.findByDraftAndUser(it, user) }
         render([
                 status: 's',
                 body  : drafts.collect { ServiceDraft draft ->
@@ -71,7 +77,8 @@ class MobileController {
                             id      : draft?.id,
                             customer: draft?.customer?.name,
                             service : draft?.serviceDefinition?.name,
-                            date    : format.jalaliDate(date: draft?.dateCreated, hm: 'true')
+                            date    : format.jalaliDate(date: draft?.dateCreated, hm: 'true'),
+                            done    : draft.done,
                     ]
                 }
         ] as JSON)
@@ -117,12 +124,18 @@ class MobileController {
                         customer  : draft?.customer?.name,
                         service   : draft?.serviceDefinition?.name,
                         date      : format.jalaliDate(date: draft?.dateCreated, hm: 'true'),
-                        done      : it.done,
-                        parameters: ServiceDraftParameter.findAllByDraft(draft)?.collect { parameterValue ->
+                        done      : draft.done,
+                        parameters: ServiceDraftParameter.findAllByDraft(draft)?.findAll { it.parameter?.displayForSignature }?.collect { parameterValue ->
                             [
-                                    name : parameterValue?.parameter?.name,
+                                    name : parameterValue?.parameter?.displayName ?: parameterValue?.parameter?.name,
                                     type : parameterValue?.parameter?.type,
                                     value: parameterValue?.value
+                            ]
+                        } ?: [],
+                        signatures: ServiceDraftSignature.findAllByDraft(draft)?.collect {
+                            [
+                                    user    : it.user?.toString(),
+                                    decision: message(code: "serviceDraftSignature.decision.${it.decision}").toString()
                             ]
                         } ?: []
                 ]
