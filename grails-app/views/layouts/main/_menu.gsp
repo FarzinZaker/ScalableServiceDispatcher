@@ -1,4 +1,4 @@
-<%@ page import="best.service.dispatcher.security.RoleHelper" %>
+<%@ page import="grails.util.Holders; best.service.dispatcher.security.RoleHelper" %>
 <div class="menuContainer">
     <div class="container">
         <div class="row">
@@ -18,6 +18,7 @@
                         </sec:ifAnyGranted>
                     </sec:ifLoggedIn>
                 </ul>
+
             </div>
         </div>
     </div>

@@ -1,6 +1,7 @@
 package best.service.dispatcher
 
 import grails.converters.JSON
+import org.grails.datastore.mapping.model.types.Custom
 
 class ServiceController {
 
@@ -8,7 +9,7 @@ class ServiceController {
     def springSecurityService
 
     def authenticate() {
-        if (!params.username || !params.password || !params.customer || !params.app) {
+        if (!params.username || !params.password || !params.app) {
             render([
                     status: 'f',
                     error : [
@@ -54,7 +55,15 @@ class ServiceController {
             return
         }
 
-        def customer = Customer.findByEnglishNameAndDeleted(params.customer, false)
+        def customer
+        if (params.customer)
+            customer = Customer.findByEnglishNameAndDeleted(params.customer, false)
+        else {
+            def list = CustomerUser.findAllByUserAndDeleted(user, false)?.customer
+            customer = list.find { AppCustomer.findByAppAndCustomerAndDeleted(app, it, false) }
+            if (!customer)
+                customer = CustomerUser.findByUserAndDeleted(user, false)?.customer
+        }
         if (!customer) {
             render([
                     status: 'f',
@@ -104,7 +113,9 @@ class ServiceController {
 
         render([
                 status  : 's',
-                clientNo: customer?.clientNo
+                clientNo: customer?.clientNo,
+                customer: customer?.englishName,
+                userId  : user?.id
         ] as JSON)
     }
 
@@ -128,5 +139,122 @@ class ServiceController {
             ] as JSON)
             ignored.printStackTrace()
         }
+    }
+
+    def history() {
+
+        ServiceDraft.findAllByApprovedIsNull().each {
+            dispatchService.checkDraft(it)
+        }
+
+        if (!params.user) {
+            render([
+                    status: 'f',
+                    body  : message(code: 'decideOnServiceDraft.error.insufficientParams')
+            ] as JSON)
+
+        }
+        def minId = 0
+        if (params.after)
+            minId = params.after?.toString()?.toLong()
+        def user = User.get(params.user as Long)
+        if (!user) {
+            render([
+                    status: 'f',
+                    body  : message(code: 'decideOnServiceDraft.error.noSuchUser')
+            ] as JSON)
+            return
+        }
+        def signatures = []
+        try {
+            signatures = CustomerServiceSignature.findAllByCustomerUserInListAndDeleted(CustomerUser.findAllByUserAndDeleted(user, false), false)?.collect { it.customerService }
+        } catch (ignored) {
+        }
+
+        def drafts = []
+        signatures.each { signature ->
+            if (signature?.id > minId)
+                drafts.addAll(ServiceDraft.findAllByCustomerAndServiceDefinition(signature.customer, signature.service) ?: [])
+        }
+        drafts = drafts.findAll { ServiceDraftSignature.findByDraftAndUser(it, user) }
+
+        render([
+                status: 's',
+                body  : drafts.collect { ServiceDraft draft ->
+                    [
+                            id        : draft.id,
+                            customer  : draft?.customer?.name,
+                            service   : draft?.serviceDefinition?.name,
+                            date      : format.jalaliDate(date: draft?.dateCreated, hm: 'true'),
+                            done      : draft.done,
+                            approved  : draft.approved ?: false,
+                            parameters: ServiceDraftParameter.findAllByDraft(draft)?.findAll { it.parameter?.displayForSignature }?.collect { parameterValue ->
+                                [
+                                        name : parameterValue?.parameter?.displayName ?: parameterValue?.parameter?.name,
+                                        type : parameterValue?.parameter?.type,
+                                        value: parameterValue?.value
+                                ]
+                            } ?: [],
+                            signatures: ServiceDraftSignature.findAllByDraft(draft)?.collect {
+                                [
+                                        user    : it.user?.toString(),
+                                        decision: message(code: "serviceDraftSignature.decision.${it.decision}").toString()
+                                ]
+                            } ?: []
+                    ]
+                }
+        ] as JSON)
+    }
+
+    def access() {
+        if (!params.user) {
+            render([
+                    status: 'f',
+                    body  : message(code: 'decideOnServiceDraft.error.insufficientParams')
+            ] as JSON)
+
+        }
+
+        def user = User.get(params.user as Long)
+        if (!user) {
+            render([
+                    status: 'f',
+                    body  : message(code: 'decideOnServiceDraft.error.noSuchUser')
+            ] as JSON)
+            return
+        }
+
+        def customerUsers = CustomerUser.findAllByUserAndDeleted(user, false)
+        def apps = AppCustomerUser.findAllByCustomerUserInListAndDeleted(customerUsers, false).collect { it.appCustomer?.app }?.unique { it.id }
+        def customers = customerUsers?.collect { it.customer }
+        render([
+                apps     : apps.collect { [id: it.id, name: it.name, englishName: it.englishName] },
+                customers: customers.collect { Customer custo ->
+                    [
+                            id         : custo.id,
+                            name       : custo.name,
+                            englishName: custo.englishName,
+                            clientNo   : custo.clientNo,
+                            services   : CustomerService.createCriteria().list {
+                                eq('customer', custo)
+                                or {
+                                    isNull('startDate')
+                                    gte('startDate', new Date())
+                                }
+                                or {
+                                    isNull('endDate')
+                                    lte('endDate', new Date())
+                                }
+                            }?.collect { CustomerService customerService ->
+                                def service = customerService.service
+                                [
+                                        id         : service.id,
+                                        name       : service.name,
+                                        englishName: service.englishName
+                                ]
+                            } ?: []
+                    ]
+                }
+        ] as JSON)
     }
 }

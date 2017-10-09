@@ -14,6 +14,11 @@
                                     code="quickLinks.sample"/></a>
                         </li>
                     </ul>
+
+                    <div style="float:left;line-height:34px;">
+                        <g:message code="version"/>
+                        <g:meta name="info.app.version"/>
+                    </div>
                 </div>
             </div>
         </div>

@@ -39,6 +39,37 @@ class MobileController {
         }
     }
 
+    def changePassword() {
+        if (!params.user || !params.password || !params.newPassword) {
+            render([
+                    status: 'f'
+            ] as JSON)
+            return
+        }
+
+        def user = User.get(params.user?.toString()?.toLong())
+        if (!user || !user.enabled || user.accountExpired || user.passwordExpired) {
+            render([
+                    status: 'f'
+            ] as JSON)
+            return
+        }
+
+        if (springSecurityService.passwordEncoder.isPasswordValid(user.password, params.password?.toString(), null)) {
+            User.withNewTransaction {
+                user.password = params.newPassword
+                user.save(flash: true)
+            }
+            render([
+                    status: 's'
+            ] as JSON)
+        } else {
+            render([
+                    status: 'f'
+            ] as JSON)
+        }
+    }
+
     def draftList() {
         if (!params.user) {
             render([
@@ -79,6 +110,59 @@ class MobileController {
                             service : draft?.serviceDefinition?.name,
                             date    : format.jalaliDate(date: draft?.dateCreated, hm: 'true'),
                             done    : draft.done,
+                            approved: draft.approved ?: false
+                    ]
+                }
+        ] as JSON)
+    }
+
+    def history() {
+
+        ServiceDraft.findAllByApprovedIsNull().each {
+            dispatchService.checkDraft(it)
+        }
+
+        if (!params.user) {
+            render([
+                    status: 'f',
+                    body  : message(code: 'decideOnServiceDraft.error.insufficientParams')
+            ] as JSON)
+
+        }
+        def minId = 0
+        if (params.after)
+            minId = params.after?.toString()?.toLong()
+        def user = User.get(params.user as Long)
+        if (!user) {
+            render([
+                    status: 'f',
+                    body  : message(code: 'decideOnServiceDraft.error.noSuchUser')
+            ] as JSON)
+            return
+        }
+        def signatures = []
+        try {
+            signatures = CustomerServiceSignature.findAllByCustomerUserInListAndDeleted(CustomerUser.findAllByUserAndDeleted(user, false), false)?.collect { it.customerService }
+        } catch (ignored) {
+        }
+
+        def drafts = []
+        signatures.each { signature ->
+            if (signature?.id > minId)
+                drafts.addAll(ServiceDraft.findAllByCustomerAndServiceDefinition(signature.customer, signature.service) ?: [])
+        }
+        drafts = drafts.findAll { ServiceDraftSignature.findByDraftAndUser(it, user) }
+
+        render([
+                status: 's',
+                body  : drafts.collect { ServiceDraft draft ->
+                    [
+                            id      : draft?.id,
+                            customer: draft?.customer?.name,
+                            service : draft?.serviceDefinition?.name,
+                            date    : format.jalaliDate(date: draft?.dateCreated, hm: 'true'),
+                            done    : draft.done,
+                            approved: draft.approved ?: false
                     ]
                 }
         ] as JSON)
@@ -125,6 +209,7 @@ class MobileController {
                         service   : draft?.serviceDefinition?.name,
                         date      : format.jalaliDate(date: draft?.dateCreated, hm: 'true'),
                         done      : draft.done,
+                        approved  : draft.approved ?: false,
                         parameters: ServiceDraftParameter.findAllByDraft(draft)?.findAll { it.parameter?.displayForSignature }?.collect { parameterValue ->
                             [
                                     name : parameterValue?.parameter?.displayName ?: parameterValue?.parameter?.name,

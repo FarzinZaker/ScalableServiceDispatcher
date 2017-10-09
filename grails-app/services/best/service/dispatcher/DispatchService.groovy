@@ -103,11 +103,14 @@ class DispatchService {
         //received required signatures
         if (acceptSignatures.size() >= customerService.minimumSignatures
                 && !requiredSignatures.findAll { it.required }.collect { it.customerUser?.user?.id }.any { !acceptSignatures.collect { it.user?.id }.contains(it) }) {
+            draft.done = true
+            draft.approved = true
             return true
         }
         //received all signatures (rejected)
         if (!requiredSignatures.collect { it.customerUser?.user?.id }.any { !currentSignatures.collect { it.user?.id }.contains(it) }) {
             draft.done = true
+            draft.approved = false
             draft.save()
         }
         return false
@@ -149,21 +152,21 @@ class DispatchService {
             }
     }
 
-    private static App getApp(String appName) {
+    static App getApp(String appName) {
         def app = App.findByEnglishNameAndDeleted(appName as String, false)
         if (!app)
             throw new ServiceException(109, [appName])
         app
     }
 
-    private static Customer getCustomer(String customerName) {
+    static Customer getCustomer(String customerName) {
         def customer = Customer.findByEnglishNameAndDeleted(customerName as String, false)
         if (!customer)
             throw new ServiceException(101, [customerName])
         customer
     }
 
-    private static void checkKey(String consumerName, String consumerKey, String serviceName, String parameters, key) {
+    static void checkKey(String consumerName, String consumerKey, String serviceName, String parameters, key) {
         def digest = MessageDigest.getInstance("SHA-256")
         byte[] hash = digest.digest("${consumerName}${serviceName}${parameters ?: ''}${consumerKey}".getBytes(StandardCharsets.UTF_8))
         def hashString = hash.encodeAsHex() //new String(hash, StandardCharsets.UTF_8)
@@ -171,35 +174,35 @@ class DispatchService {
             throw new ServiceException(102, [key])
     }
 
-    private static ServiceDefinition getServiceDefinition(String serviceName) {
+    static ServiceDefinition getServiceDefinition(String serviceName) {
         def serviceDefinition = ServiceDefinition.findByEnglishNameAndDeleted(serviceName, false)
         if (!serviceDefinition)
             throw new ServiceException(103, [serviceName])
         serviceDefinition
     }
 
-    private static AppCustomer getAppCustomer(App app, Customer customer) {
+    static AppCustomer getAppCustomer(App app, Customer customer) {
         def appCustomer = AppCustomer.findByAppAndCustomerAndDeleted(app, customer, false)
         if (!appCustomer)
             throw new ServiceException(110, [customer.name, app.name])
         appCustomer
     }
 
-    private static CustomerService getCustomerService(Customer customer, ServiceDefinition serviceDefinition) {
+    static CustomerService getCustomerService(Customer customer, ServiceDefinition serviceDefinition) {
         def customerService = CustomerService.findByCustomerAndServiceAndDeleted(customer, serviceDefinition, false)
         if (!customerService)
             throw new ServiceException(104, [customer.name, serviceDefinition.name])
         customerService
     }
 
-    private static List<ServiceInstance> getServiceInstanceList(ServiceDefinition serviceDefinition) {
+    static List<ServiceInstance> getServiceInstanceList(ServiceDefinition serviceDefinition) {
         def serviceInstanceList = ServiceInstance.findAllByServiceDefinitionAndDeleted(serviceDefinition, false)
         if (!serviceInstanceList?.size())
             throw new ServiceException(105, [serviceDefinition?.name])
         serviceInstanceList
     }
 
-    private static ServiceInstance getServiceInstance(ServiceDefinition serviceDefinition) {
+    static ServiceInstance getServiceInstance(ServiceDefinition serviceDefinition) {
         def serviceInstanceList = getServiceInstanceList(serviceDefinition)
         serviceInstanceList[random.nextInt(serviceInstanceList.size())]
     }
