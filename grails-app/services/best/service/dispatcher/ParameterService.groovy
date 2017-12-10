@@ -47,6 +47,8 @@ class ParameterService {
         switch (parameter.type) {
             case 'String':
                 return value
+            case 'JSON':
+                return value
             case 'Integer':
                 return value?.toInteger()
             case 'Long':
@@ -64,7 +66,7 @@ class ParameterService {
         }
     }
 
-    private static String generateKey(Map parametersMap) {
+    static String generateKey(Map parametersMap) {
         parametersMap?.keySet()?.each {
             parametersMap[it] = parametersMap[it]?.toString()
         }

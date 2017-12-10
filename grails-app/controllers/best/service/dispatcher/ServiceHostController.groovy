@@ -1,5 +1,6 @@
 package best.service.dispatcher
 
+import best.service.dispatcher.security.CrossPlatformEncryption
 import best.service.dispatcher.security.RoleHelper
 import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured

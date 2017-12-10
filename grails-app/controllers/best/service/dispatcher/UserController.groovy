@@ -124,6 +124,7 @@ class UserController {
         user.lastName = params.lastName
         user.sex = params.sex
         user.mobile = params.mobile
+        user.clientNo = params.clientNo
         user.email = params.email
 
         if (!params.id || (params.password && params.password?.trim() != ''))

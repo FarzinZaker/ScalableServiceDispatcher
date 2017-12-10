@@ -130,6 +130,22 @@
                     filterable: false
                 },
                 {
+                    field: "useForSignatureCheckWithCore",
+                    title: "${message(code:'serviceParameter.useForSignatureCheckWithCore.label')}",
+                    filterable: false,
+                    template: "<i class=\"fa #: useForSignatureCheckWithCore ? 'fa-thumbs-up' : '' #\"></i>",
+                    attributes: {style: "text-align: center"},
+                    headerAttributes: {style: "text-align: center"}
+                },
+                {
+                    field: "useAsAmountToCheckWithCore",
+                    title: "${message(code:'serviceParameter.useAsAmountToCheckWithCore.label')}",
+                    filterable: false,
+                    template: "<i class=\"fa #: useAsAmountToCheckWithCore ? 'fa-thumbs-up' : '' #\"></i>",
+                    attributes: {style: "text-align: center"},
+                    headerAttributes: {style: "text-align: center"}
+                },
+                {
                     field: "displayForSignature",
                     title: "${message(code:'serviceParameter.displayForSignature.label')}",
                     filterable: false,
@@ -137,6 +153,11 @@
                     attributes: {style: "text-align: center"},
                     headerAttributes: {style: "text-align: center"}
                 },
+                %{--{--}%
+                    %{--field: "aggregateField",--}%
+                    %{--title: "${message(code:'serviceParameter.aggregateField.label')}",--}%
+                    %{--filterable: false--}%
+                %{--},--}%
                 {
                     field: "lastUpdated",
                     title: "${message(code:'serviceParameter.lastUpdated.label')}",

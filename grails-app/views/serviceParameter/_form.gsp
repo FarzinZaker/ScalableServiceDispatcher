@@ -22,6 +22,18 @@
                      preSelect="" allowUserInput="true"
                      items="${[null, 'customer.clientNo'].collect { [text: message(code: "${it}"), value: it] }}"/>
     </form:field>
+    <form:field fieldName="serviceParameter.useForSignatureCheckWithCore" showLabel="0">
+        <div style="width: 400px;padding-top:20px;">
+            <form:checkbox name="useForSignatureCheckWithCore" checked="${item?.useForSignatureCheckWithCore}"
+                           text="${message(code: 'serviceParameter.useForSignatureCheckWithCore.label')}"/>
+        </div>
+    </form:field>
+    <form:field fieldName="serviceParameter.useAsAmountToCheckWithCore" showLabel="0">
+        <div style="width: 400px;padding-top:20px;">
+            <form:checkbox name="useAsAmountToCheckWithCore" checked="${item?.useAsAmountToCheckWithCore}"
+                           text="${message(code: 'serviceParameter.useAsAmountToCheckWithCore.label')}"/>
+        </div>
+    </form:field>
     <form:field fieldName="serviceParameter.displayForSignature" showLabel="0">
         <div style="width: 400px;padding-top:20px;">
             <form:checkbox name="displayForSignature" checked="${item?.displayForSignature}"
@@ -30,6 +42,9 @@
     </form:field>
     <form:field fieldName="serviceParameter.displayName">
         <form:textBox name="displayName" entity="${item}" style="width:400px;"/>
+    </form:field>
+    <form:field fieldName="serviceParameter.aggregateField" showHelp="0">
+        <form:textArea name="aggregateField" entity="${item}" style="width:800px;height:100px;direction: ltr;font-family: 'Courier New', Arial !important;"/>
     </form:field>
     <div class="toolbar">
         <form:button onclick="saveItem()" text="${message(code: 'save')}" class="btn-right"/>

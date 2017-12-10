@@ -25,6 +25,8 @@ class User implements Serializable {
     String mobile
     Image image
 
+    String clientNo
+
     Set<Role> getAuthorities() {
         UserRole.findAllByUser(this)*.role
     }
@@ -54,6 +56,8 @@ class User implements Serializable {
         email()
         mobile nullable: true
         image nullable: true
+
+        clientNo nullable: true
     }
 
     static mapping = {
@@ -62,7 +66,7 @@ class User implements Serializable {
     }
 
     @Override
-    String toString(){
+    String toString() {
         "$firstName $lastName"
     }
 }

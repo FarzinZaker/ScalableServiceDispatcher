@@ -10,6 +10,10 @@
     <form:textBox name="lastName" style="width:500px" entity="${user}" validation="required"/>
 </form:field>
 
+<form:field fieldName="userInfo.clientNo">
+    <form:textBox name="clientNo" style="width:500px" entity="${user}"/>
+</form:field>
+
 <form:field fieldName="userInfo.sex">
     <form:select name="sex" entity="${user}"
                  items="${[[text: message(code: 'user.sex.male'), value: 'male'], [text: message(code: 'user.sex.female'), value: 'female']]}"

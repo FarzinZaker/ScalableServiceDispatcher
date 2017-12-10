@@ -15,6 +15,12 @@
                          }}"/>
         </g:else>
     </form:field>
+    <form:field fieldName="customerService.checkSignaturesWithCore" showLabel="0">
+        <div style="width: 400px;padding-top:20px;">
+            <form:checkbox name="checkSignaturesWithCore" checked="${item?.checkSignaturesWithCore}"
+                           text="${message(code: 'customerService.checkSignaturesWithCore.label')}"/>
+        </div>
+    </form:field>
     <form:field fieldName="customerService.startDate">
         <form:datePicker name="startDate" entity="${item}" style="width:400px;"
                          value="${format.jalaliDate(date: item?.id ? item?.startDate : new Date())}"/>

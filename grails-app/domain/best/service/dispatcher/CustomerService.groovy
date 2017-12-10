@@ -7,6 +7,7 @@ class CustomerService {
     Date startDate
     Date endDate
     Integer minimumSignatures = 0
+    Boolean checkSignaturesWithCore = false
     Boolean deleted = false
     Date dateCreated
     Date lastUpdated
@@ -17,5 +18,6 @@ class CustomerService {
         startDate(nullable: true)
         endDate(nullable: true)
         minimumSignatures(nullable: true)
+        checkSignaturesWithCore(nullable: true)
     }
 }

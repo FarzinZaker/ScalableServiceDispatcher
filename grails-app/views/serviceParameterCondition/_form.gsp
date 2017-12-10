@@ -26,7 +26,7 @@
                      }}"/>
     </form:field>
     <form:field fieldName="serviceParameterCondition.value">
-        <form:textBox name="value" entity="${item}" style="width:400px;"/>
+        <form:textArea name="value" entity="${item}" style="width:400px;height:80px;direction: ltr;"/>
     </form:field>
     <div class="toolbar">
         <form:button onclick="saveItem()" text="${message(code: 'save')}" class="btn-right"/>

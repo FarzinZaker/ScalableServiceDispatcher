@@ -109,6 +109,14 @@
                     filterable: false
                 },
                 {
+                    field: "isBulk",
+                    title: "${message(code:'serviceDefinition.isBulk.label')}",
+                    filterable: false,
+                    template: "<i class=\"fa #: isBulk ? 'fa-thumbs-up' : '' #\"></i>",
+                    attributes: {style: "text-align: center"},
+                    headerAttributes: {style: "text-align: center"}
+                },
+                {
                     field: "lastUpdated",
                     title: "${message(code:'serviceDefinition.lastUpdated.label')}",
                     filterable: false

@@ -1,7 +1,7 @@
 package best.service.dispatcher
 
+import best.service.dispatcher.security.CrossPlatformEncryption
 import grails.converters.JSON
-import grails.plugin.springsecurity.authentication.encoding.BCryptPasswordEncoder
 
 class MobileController {
 
@@ -26,7 +26,7 @@ class MobileController {
             return
         }
 
-        if (springSecurityService.passwordEncoder.isPasswordValid(user.password, params.password?.toString(), null)) {
+        if (springSecurityService.passwordEncoder.isPasswordValid(user.password, new CrossPlatformEncryption().decrypt(params.password?.toString(), 'BESTKEY'), null)) {
             render([
                     status: 's',
                     id    : user.id?.toString()
@@ -55,9 +55,9 @@ class MobileController {
             return
         }
 
-        if (springSecurityService.passwordEncoder.isPasswordValid(user.password, params.password?.toString(), null)) {
+        if (springSecurityService.passwordEncoder.isPasswordValid(user.password, new CrossPlatformEncryption().decrypt(params.password?.toString(), 'BESTKEY'), null)) {
             User.withNewTransaction {
-                user.password = params.newPassword
+                user.password = new CrossPlatformEncryption().decrypt(params.newPassword?.toString(), 'BESTKEY')
                 user.save(flash: true)
             }
             render([
@@ -201,6 +201,26 @@ class MobileController {
             ] as JSON)
             return
         }
+        def parameters = ServiceDraftParameter.findAllByDraft(draft)?.findAll { it.parameter?.displayForSignature }?.collect { parameterValue ->
+            def item = [:]
+            if (parameterValue?.parameter?.type == 'JSON' && parameterValue?.parameter?.aggregateField && parameterValue?.parameter?.aggregateField?.trim() != '') {
+                def shell = new GroovyShell()
+                shell.setVariable('parameterValue', JSON.parse(parameterValue.value))
+                def value = shell.evaluate("def evaluator = ${parameterValue?.parameter?.aggregateField}; evaluator(parameterValue)")
+                item = [
+                        name : parameterValue?.parameter?.displayName ?: parameterValue?.parameter?.name,
+                        type : parameterValue?.parameter?.type,
+                        value: value
+                ]
+            } else {
+                item = [
+                        name : parameterValue?.parameter?.displayName ?: parameterValue?.parameter?.name,
+                        type : parameterValue?.parameter?.type,
+                        value: parameterValue?.value
+                ]
+            }
+            item
+        } ?: []
         render([
                 status: 's',
                 body  : [
@@ -210,13 +230,7 @@ class MobileController {
                         date      : format.jalaliDate(date: draft?.dateCreated, hm: 'true'),
                         done      : draft.done,
                         approved  : draft.approved ?: false,
-                        parameters: ServiceDraftParameter.findAllByDraft(draft)?.findAll { it.parameter?.displayForSignature }?.collect { parameterValue ->
-                            [
-                                    name : parameterValue?.parameter?.displayName ?: parameterValue?.parameter?.name,
-                                    type : parameterValue?.parameter?.type,
-                                    value: parameterValue?.value
-                            ]
-                        } ?: [],
+                        parameters: parameters,
                         signatures: ServiceDraftSignature.findAllByDraft(draft)?.collect {
                             [
                                     user    : it.user?.toString(),

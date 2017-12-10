@@ -26,6 +26,7 @@ class CustomerServiceController {
                     id         : it.id,
                     service    : it.service?.name,
                     startDate  : it.startDate ? format.jalaliDate(date: it.startDate) : '',
+                    checkSignaturesWithCore  : it.checkSignaturesWithCore,
                     endDate    : it.endDate ? format.jalaliDate(date: it.endDate) : '',
                     lastUpdated: format.jalaliDate(date: it.lastUpdated, hm: true)
             ]
@@ -54,6 +55,7 @@ class CustomerServiceController {
         }
         item.customer = Customer.get(params.customer.id)
         item.service = ServiceDefinition.get(params.service.id)
+        item.checkSignaturesWithCore = params.checkSignaturesWithCore ? true : false
         item.startDate = parseDate(params.startDate)
         item.endDate = parseDate(params.endDate)
         item.minimumSignatures = params.minimumSignatures as Integer

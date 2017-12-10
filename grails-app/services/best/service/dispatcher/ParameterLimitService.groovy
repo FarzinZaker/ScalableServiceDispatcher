@@ -1,6 +1,7 @@
 package best.service.dispatcher
 
 import fi.joensuu.joyds1.calendar.JalaliCalendar
+import grails.converters.JSON
 import grails.transaction.Transactional
 
 @Transactional
@@ -22,61 +23,94 @@ class ParameterLimitService {
     }
 
     Boolean checkCondition(ServiceParameterCondition condition, CustomerService customerService, Map parameters) {
-        def oldValues = []
-        if (condition.unit == 'day') {
-            def periodStart = new Date().clearTime()
-            oldValues = getParameterValues(customerService, condition.parameter, periodStart)
+        if (condition.operator != 'cus') {
+            def oldValues = []
+            if (condition.unit == 'day') {
+                def periodStart = new Date().clearTime()
+                oldValues = getParameterValues(customerService, condition.parameter, periodStart)
+            }
+            if (condition.unit == 'month') {
+                def cal = Calendar.getInstance()
+                cal.setTime(new Date())
+                def jc = new JalaliCalendar(cal)
+                def periodStart = (new Date() - jc.getDay() + 1).clearTime()
+                oldValues = getParameterValues(customerService, condition.parameter, periodStart)
+            }
+            def valueList = oldValues + [parameters[condition.parameter.name]]
+            def sum
+            def value
+            switch (condition.parameter.type) {
+                case 'String':
+                    sum = valueList.collect { it as String }.join(' ')
+                    value = condition.value as String
+                    break
+                case 'JSON':
+                    sum = valueList.collect { it as String }.join(' ')
+                    value = condition.value as String
+                    break
+                case 'Date':
+                    sum = valueList.collect { it as Date }.max()
+                    value = condition.value as Date
+                    break
+                case 'Boolean':
+                    sum = valueList.collect { it as Boolean }.any()
+                    value = condition.value as Boolean
+                    break
+                default:
+                    sum = valueList.collect { it as Double }.sum()
+                    value = condition.value as Double
+            }
+            switch (condition.operator) {
+                case 'eq':
+                    if (sum != value)
+                        return false
+                    break
+                case 'gt':
+                    if (sum <= value)
+                        return false
+                    break
+                case 'gte':
+                    if (sum < value)
+                        return false
+                    break
+                case 'lt':
+                    if (sum >= value)
+                        return false
+                    break
+                case 'lte':
+                    if (sum > value)
+                        return false
+                    break
+            }
+            true
+        } else {
+            def parameterValue
+            switch (condition.parameter.type) {
+                case 'String':
+                    parameterValue = parameters[condition.parameter.name]?.toString()
+                    break
+                case 'JSON':
+                    parameterValue = JSON.parse(parameters[condition.parameter.name]?.toString())
+                    break
+                case 'Date':
+                    parameterValue = new Date(parameters[condition.parameter.name]?.toString())
+                    break
+                case 'Boolean':
+                    parameterValue = parameters[condition.parameter.name]?.toString()?.toBoolean()
+                    break
+                default:
+                    parameterValue = parameters[condition.parameter.name]?.toString()?.toDouble()
+            }
+
+            def binding = new Binding()
+            def gs = new GroovyShell(binding)
+            binding.setVariable("paramVal", parameterValue)
+            try {
+                gs.evaluate("${condition.value}") as Boolean
+            } catch (ignored) {
+                false
+            }
         }
-        if (condition.unit == 'month') {
-            def cal = Calendar.getInstance()
-            cal.setTime(new Date())
-            def jc = new JalaliCalendar(cal)
-            def periodStart = (new Date() - jc.getDay() + 1).clearTime()
-            oldValues = getParameterValues(customerService, condition.parameter, periodStart)
-        }
-        def valueList = oldValues + [parameters[condition.parameter.name]]
-        def sum
-        def value
-        switch (condition.parameter.type) {
-            case 'String':
-                sum = valueList.collect { it as String }.join(' ')
-                value = condition.value as String
-                break
-            case 'Date':
-                sum = valueList.collect { it as Date }.max()
-                value = condition.value as Date
-                break
-            case 'Boolean':
-                sum = valueList.collect { it as Boolean }.any()
-                value = condition.value as Boolean
-                break
-            default:
-                sum = valueList.collect { it as Double }.sum()
-                value = condition.value as Double
-        }
-        switch (condition.operator) {
-            case 'eq':
-                if (sum != value)
-                    return false
-                break
-            case 'gt':
-                if (sum <= value)
-                    return false
-                break
-            case 'gte':
-                if (sum < value)
-                    return false
-                break
-            case 'lt':
-                if (sum >= value)
-                    return false
-                break
-            case 'lte':
-                if (sum > value)
-                    return false
-                break
-        }
-        true
     }
 
     List getParameterValues(CustomerService customerService, ServiceParameter parameter, Date periodStart) {

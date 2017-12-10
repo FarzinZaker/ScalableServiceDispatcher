@@ -20,6 +20,6 @@ class ServiceParameterCondition {
     }
 
     static transient UNITS = ['single', 'day', 'month']
-    static transient OPERATORS = ['eq', 'gt', 'gte', 'lt', 'lte']
+    static transient OPERATORS = ['eq', 'gt', 'gte', 'lt', 'lte', 'cus']
     static transient TYPES = ['pre', 'post']
 }

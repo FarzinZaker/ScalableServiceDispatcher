@@ -24,6 +24,7 @@ class ServiceDefinitionController {
                     id         : it.id,
                     name       : it.name,
                     englishName: it.englishName,
+                    isBulk     : it.isBulk,
                     lastUpdated: format.jalaliDate(date: it.lastUpdated, hm: true)
             ]
         }

@@ -106,6 +106,14 @@
                     filterable: false
                 },
                 {
+                    field: "checkSignaturesWithCore",
+                    title: "${message(code:'customerService.checkSignaturesWithCore.label')}",
+                    filterable: false,
+                    template: "<i class=\"fa #: checkSignaturesWithCore ? 'fa-thumbs-up' : '' #\"></i>",
+                    attributes: {style: "text-align: center"},
+                    headerAttributes: {style: "text-align: center"}
+                },
+                {
                     field: "startDate",
                     title: "${message(code:'customerService.startDate.label')}",
                     filterable: false

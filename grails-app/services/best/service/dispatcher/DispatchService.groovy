@@ -33,6 +33,7 @@ class DispatchService {
     def parameterService
     def rateService
     def parameterLimitService
+    def coreConnectionService
 
     def executeAsCustomer(String customerName, String serviceName, String parameters, String key) {
         def customer = getCustomer(customerName)
@@ -57,7 +58,7 @@ class DispatchService {
         def extractedParameters = parameters ? parameterService.extractParameters(serviceDefinition, parameters, customer) : [:]
         parameterLimitService.applyParameterLimits(customerService, extractedParameters)
 
-        if (customerService.minimumSignatures > 0) {
+        if (customerService.minimumSignatures > 0 || customerService.checkSignaturesWithCore) {
             def serviceDraft = new ServiceDraft(customer: customer, serviceDefinition: serviceDefinition).save(flush: true)
             if (serviceDraft)
                 extractedParameters.each {
@@ -118,7 +119,7 @@ class DispatchService {
 
     def executeDraft(ServiceDraft draft) {
 
-        if (!checkDraft(draft))
+        if (!checkDraft(draft) || !coreConnectionService.checkSignatures(draft))
             return
 
         def requestTime = new Date()

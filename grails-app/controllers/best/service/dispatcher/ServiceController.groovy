@@ -1,5 +1,6 @@
 package best.service.dispatcher
 
+import best.service.dispatcher.security.CrossPlatformEncryption
 import grails.converters.JSON
 import org.grails.datastore.mapping.model.types.Custom
 
@@ -119,6 +120,49 @@ class ServiceController {
         ] as JSON)
     }
 
+    def changePassword() {
+        if (!params.user || !params.password || !params.newPassword) {
+            render([
+                    status: 'f',
+                    error : [
+                            code   : 900,
+                            message: message(code: 'service.exception.900')
+                    ]
+            ] as JSON)
+            return
+        }
+
+        def user = User.get(params.user?.toString()?.toLong())
+        if (!user || !user.enabled || user.accountExpired || user.passwordExpired) {
+            render([
+                    status: 'f',
+                    error : [
+                            code   : 901,
+                            message: message(code: 'service.exception.901')
+                    ]
+            ] as JSON)
+            return
+        }
+
+        if (springSecurityService.passwordEncoder.isPasswordValid(user.password, new CrossPlatformEncryption().decrypt(params.password?.toString(), 'BESTKEY'), null)) {
+            User.withNewTransaction {
+                user.password = new CrossPlatformEncryption().decrypt(params.newPassword?.toString(), 'BESTKEY')
+                user.save(flash: true)
+            }
+            render([
+                    status: 's'
+            ] as JSON)
+        } else {
+            render([
+                    status: 'f',
+                    error : [
+                            code   : 902,
+                            message: message(code: 'service.exception.902')
+                    ]
+            ] as JSON)
+        }
+    }
+
     def execute() {
         try {
             if (params.app)
@@ -141,7 +185,7 @@ class ServiceController {
         }
     }
 
-    def history() {
+    def draftHistory() {
 
         ServiceDraft.findAllByApprovedIsNull().each {
             dispatchService.checkDraft(it)
@@ -176,7 +220,7 @@ class ServiceController {
             if (signature?.id > minId)
                 drafts.addAll(ServiceDraft.findAllByCustomerAndServiceDefinition(signature.customer, signature.service) ?: [])
         }
-        drafts = drafts.findAll { ServiceDraftSignature.findByDraftAndUser(it, user) }
+//        drafts = drafts.findAll { ServiceDraftSignature.findByDraftAndUser(it, user) }
 
         render([
                 status: 's',
@@ -199,6 +243,68 @@ class ServiceController {
                                 [
                                         user    : it.user?.toString(),
                                         decision: message(code: "serviceDraftSignature.decision.${it.decision}").toString()
+                                ]
+                            } ?: []
+                    ]
+                }
+        ] as JSON)
+    }
+
+    def history() {
+
+        ServiceDraft.findAllByApprovedIsNull().each {
+            dispatchService.checkDraft(it)
+        }
+
+        if (!params.user) {
+            render([
+                    status: 'f',
+                    total : 0,
+                    body  : message(code: 'decideOnServiceDraft.error.insufficientParams')
+            ] as JSON)
+
+        }
+        def pageNumber = 1
+        if (params.pageNumber)
+            pageNumber = params.pageNumber?.toString()?.toLong()
+        def pageSize = 10
+        if (params.pageSize)
+            pageSize = params.pageSize?.toString()?.toLong()
+        def user = User.get(params.user as Long)
+        if (!user) {
+            render([
+                    status: 'f',
+                    total : 0,
+                    body  : message(code: 'decideOnServiceDraft.error.noSuchUser')
+            ] as JSON)
+            return
+        }
+
+        def customer
+        if (params.customer)
+            customer = Customer.findByEnglishName(params.customer)
+        else
+            customer = CustomerUser.findByUserAndDeleted(user, false)?.customer
+
+        def services = ServiceLog.findAllByCustomer(customer, [max: pageSize, sort: "id", order: "asc", offset: (pageNumber - 1) * pageSize])
+        def total = ServiceLog.countByCustomer(customer)
+
+        render([
+                status: 's',
+                total : total,
+                body  : services.collect { ServiceLog serviceLog ->
+                    [
+                            id        : serviceLog.id,
+                            customer  : serviceLog?.customer?.name,
+                            service   : serviceLog?.serviceDefinition?.name,
+                            date      : format.jalaliDate(date: serviceLog?.dateCreated, hm: 'true'),
+                            done      : true,
+                            approved  : true,
+                            parameters: ServiceLogParameter.findAllByLog(serviceLog)?.collect { parameterValue ->
+                                [
+                                        name : parameterValue?.parameter?.displayName ?: parameterValue?.parameter?.name,
+                                        type : parameterValue?.parameter?.type,
+                                        value: parameterValue?.value
                                 ]
                             } ?: []
                     ]
