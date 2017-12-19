@@ -104,7 +104,7 @@ class CoreConnectionService {
             con.getInputStream().close()
 
             //print result
-            JSON.parse(res.toString()).valid
+            !JSON.parse(res.toString())?.any{!it.valid}
         } catch (ignored) {
             false
         }
