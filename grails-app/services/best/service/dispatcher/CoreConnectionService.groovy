@@ -8,8 +8,8 @@ class CoreConnectionService {
 
     private
     static key = 'jQs3LjL0Q76nVWj2zVJ+hIrxU4pyZyXLLDnwuPbNy7mla6+tnp+7/s6KJ9s1YBGXVm5gEln/5aIpqURbKV/Saxpfcb64WcDJJaw5Bfqg2BvPk2DUAaEugGjm4YvA0tKoQfNYybU9riQMigFEJVEXbQSL+2fQUTerkWROaEhnKcmDLswaTmzY4hXms5XkFxnnWXPgz/FwWxPC53OzsdSzjd+ekXFBuOqYh+XojgnI/jsFWeeS1KuZ3Qmfxd3PlNlBZTh6w89iJBXcU/kWjLAyv5V76pKsAm4S7Q4fEdq7JD68g/jAPeh9GEO10bgFfeZ/Z+QRYu/cN5bmy6WQ7mDtdp0c/+lT3Au9Hg=='
-//    private static baseUrl = 'http://172.20.34.113:8080' //live
-    private static baseUrl = 'http://mobiletest.middleeastbank.ir:12427' //test
+    private static baseUrl = 'http://172.20.34.113:8080' //live
+//    private static baseUrl = 'http://mobiletest.middleeastbank.ir:12427' //test
 
     Boolean requiresCheckWithCore(ServiceDraft serviceDraft) {
         CustomerService.findByCustomerAndServiceAndDeletedAndStartDateLessThanEqualsAndEndDateGreaterThan(serviceDraft?.customer, serviceDraft?.serviceDefinition, false, new Date(), new Date())?.checkSignaturesWithCore ?: false

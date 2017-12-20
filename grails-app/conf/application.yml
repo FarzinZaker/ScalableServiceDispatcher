@@ -101,7 +101,7 @@ environments:
     development:
         dataSource:
             #Oracle
-            dbCreate: update
+#            dbCreate: update
             url: jdbc:oracle:thin:@172.16.24.161:1521:TESTDB2
             username: openbanktest
             password: OPENBANKTEST
