@@ -7,6 +7,7 @@ class MobileController {
 
     def springSecurityService
     def dispatchService
+    def coreConnectionService
 
     def authenticate() {
         if (!params.username || !params.password) {
@@ -101,6 +102,19 @@ class MobileController {
                 drafts.addAll(ServiceDraft.findAllByCustomerAndServiceDefinitionAndDone(signature.customer, signature.service, false) ?: [])
         }
         drafts = drafts.findAll { !ServiceDraftSignature.findByDraftAndUser(it, user) }
+
+        def accountNumbers = coreConnectionService.getUserSignableAccounts(user)
+        def serviceParameters = ServiceParameter.findAllByUseForSignatureCheckWithCoreAndDeleted(true, false)
+        def coreDrafts = ServiceDraft.createCriteria().list {
+            eq('done', false)
+            parameters {
+                and {
+                    'in'('id', serviceParameters?.collect { it.id })
+                    'in'('value', accountNumbers)
+                }
+            }
+        }
+
         render([
                 status: 's',
                 body  : drafts.collect { ServiceDraft draft ->
